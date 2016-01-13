@@ -102,7 +102,7 @@ static int arLogWrongThreadBufferCount = 0;
 
 // To call Java methods when running native code inside an Android activity,
 // a reference is needed to the JavaVM.
-static JavaVM *gJavaVM;
+static JavaVM* gJavaVM = NULL;
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
 {
@@ -121,12 +121,11 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
 #endif // ANDROID
 
 
-
 ARUint32 arGetVersion(char **versionStringRef)
 {
 	const char version[] = AR_HEADER_VERSION_STRING;
 	char *s;
-	
+
 	if (versionStringRef) {
 		arMalloc(s, char, sizeof(version));
 		strncpy(s, version, sizeof(version));
@@ -173,10 +172,10 @@ void arLog(const int logLevel, const char *format, ...)
     char *buf = NULL;
     int len;
     va_list ap;
-    
+
     if (logLevel < arLogLevel) return;
     if (!format || !format[0]) return;
-    
+
     // Unpack msg formatting.
     va_start(ap, format);
 #ifdef _WIN32
@@ -190,7 +189,7 @@ void arLog(const int logLevel, const char *format, ...)
     len = vasprintf(&buf, format, ap);
 #endif
     va_end(ap);
-    
+
     if (len >= 0) {
         if (arLogLoggerCallback) {
 
@@ -291,7 +290,7 @@ int arUtilMatMul( const ARdouble s1[3][4], const ARdouble s2[3][4], ARdouble d[3
 int arUtilMatMuldff( const ARdouble s1[3][4], const float s2[3][4], float d[3][4] )
 {
     int     i, j;
-    
+
     for( j = 0; j < 3; j++ ) {
         for( i = 0; i < 4; i++) {
             d[j][i] = (float)s1[j][0] * s2[0][i]
@@ -300,14 +299,14 @@ int arUtilMatMuldff( const ARdouble s1[3][4], const float s2[3][4], float d[3][4
         }
         d[j][3] += (float)s1[j][3];
     }
-    
+
     return 0;
 }
 
 int arUtilMatMulf( const float s1[3][4], const float s2[3][4], float d[3][4] )
 {
     int     i, j;
-    
+
     for( j = 0; j < 3; j++ ) {
         for( i = 0; i < 4; i++) {
             d[j][i] = s1[j][0] * s2[0][i]
@@ -316,7 +315,7 @@ int arUtilMatMulf( const float s1[3][4], const float s2[3][4], float d[3][4] )
         }
         d[j][3] += s1[j][3];
     }
-    
+
     return 0;
 }
 #endif
@@ -350,7 +349,7 @@ int arUtilMatInvf( const float s[3][4], float d[3][4] )
 {
     ARMat       *mat;
     int         i, j;
-    
+
     mat = arMatrixAlloc( 4, 4 );
     for( j = 0; j < 3; j++ ) {
         for( i = 0; i < 4; i++ ) {
@@ -366,7 +365,7 @@ int arUtilMatInvf( const float s[3][4], float d[3][4] )
         }
     }
     arMatrixFree( mat );
-    
+
     return 0;
 }
 #endif
@@ -382,15 +381,15 @@ int arUtilMat2QuatPos( const ARdouble m[3][4], ARdouble q[4], ARdouble p[3] )
         q[0] = (m[1][2] - m[2][1]) / s;
         q[1] = (m[2][0] - m[0][2]) / s;
         q[2] = (m[0][1] - m[1][0]) / s;
-        q[3] = 0.25f * s;        
+        q[3] = 0.25f * s;
     } else {
-        if (m[0][0] > m[1][1] && m[0][0] > m[2][2])  {	// Column 0: 
+        if (m[0][0] > m[1][1] && m[0][0] > m[2][2])  {	// Column 0:
             s  = sqrtf(1.0f + m[0][0] - m[1][1] - m[2][2]) * 2.0f;
             q[0] = 0.25f * s;
             q[1] = (m[0][1] + m[1][0] ) / s;
             q[2] = (m[2][0] + m[0][2] ) / s;
             q[3] = (m[1][2] - m[2][1] ) / s;
-        } else if (m[1][1] > m[2][2]) {			// Column 1: 
+        } else if (m[1][1] > m[2][2]) {			// Column 1:
             s  = sqrtf(1.0f + m[1][1] - m[0][0] - m[2][2]) * 2.0f;
             q[0] = (m[0][1] + m[1][0] ) / s;
             q[1] = 0.25f * s;
@@ -411,15 +410,15 @@ int arUtilMat2QuatPos( const ARdouble m[3][4], ARdouble q[4], ARdouble p[3] )
         q[0] = (m[1][2] - m[2][1]) / s;
         q[1] = (m[2][0] - m[0][2]) / s;
         q[2] = (m[0][1] - m[1][0]) / s;
-        q[3] = 0.25 * s;        
+        q[3] = 0.25 * s;
     } else {
-        if (m[0][0] > m[1][1] && m[0][0] > m[2][2])  {	// Column 0: 
+        if (m[0][0] > m[1][1] && m[0][0] > m[2][2])  {	// Column 0:
             s  = sqrt(1.0 + m[0][0] - m[1][1] - m[2][2]) * 2.0;
             q[0] = 0.25 * s;
             q[1] = (m[0][1] + m[1][0] ) / s;
             q[2] = (m[2][0] + m[0][2] ) / s;
             q[3] = (m[1][2] - m[2][1] ) / s;
-        } else if (m[1][1] > m[2][2]) {			// Column 1: 
+        } else if (m[1][1] > m[2][2]) {			// Column 1:
             s  = sqrt(1.0 + m[1][1] - m[0][0] - m[2][2]) * 2.0;
             q[0] = (m[0][1] + m[1][0] ) / s;
             q[1] = 0.25 * s;
@@ -494,7 +493,7 @@ int arUtilQuatPos2Mat( const ARdouble q[4], const ARdouble p[3], ARdouble m[3][4
 int arUtilQuatNorm(ARdouble q[4])
 {
     ARdouble mag2, mag;
-    
+
     // Normalise quaternion.
     mag2 = q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3];
     if (!mag2) return (-1);
@@ -507,7 +506,7 @@ int arUtilQuatNorm(ARdouble q[4])
     q[1] /= mag;
     q[2] /= mag;
     q[3] /= mag;
-    
+
     return (0);
 }
 
@@ -646,13 +645,13 @@ const char *arUtilGetFileNameFromPath(const char *path)
 
     if (!path) return (NULL);
     if (!*path) return (NULL);
-    
+
 	sep = strrchr(path, '/');
 #ifdef _WIN32
     sep1 = strrchr(path, '\\');
     if (sep1 > sep) sep = sep1;
 #endif
-    
+
 	if (!sep) return (path);
 	else return (sep + 1);
 }
@@ -664,27 +663,27 @@ char *arUtilGetFileBasenameFromPath(const char *path, const int convertToLowerca
     size_t len;
     char *ret;
     int i;
-    
+
     if (!path || !*path) return (NULL);
-    
+
     file = arUtilGetFileNameFromPath(path);
     sep = strrchr(file, '.');
     if (!sep) return (strdup(file));
-    
+
     len = sep - file;
     ret = (char *)malloc(len + 1);
     if (!ret) {
         fprintf(stderr, "Out of memory.\n");
         return (NULL);
     }
-    
+
     if (convertToLowercase) {
         for (i = 0; i < len; i++) ret[i] = tolower(file[i]);
     } else {
         for (i = 0; i < len; i++) ret[i] = file[i];
     }
     ret[i] = '\0';
-    
+
     return (ret);
 }
 
@@ -694,29 +693,29 @@ char *arUtilGetFileExtensionFromPath(const char *path, const int convertToLowerc
     size_t len;
     char *ret;
     int i;
-    
+
     if (!path || !*path) return (NULL);
-    
+
     sep = strrchr(arUtilGetFileNameFromPath(path), '.');
     if (!sep) return (NULL);
-    
+
     sep++; // Move past '.'
     if (!*sep) return (NULL);
-    
+
     len = strlen(sep);
     ret = (char *)malloc(len + 1);
     if (!ret) {
         fprintf(stderr, "Out of memory.\n");
         return (NULL);
     }
-    
+
     if (convertToLowercase) {
         for (i = 0; i < len; i++) ret[i] = tolower(sep[i]);
     } else {
         for (i = 0; i < len; i++) ret[i] = sep[i];
     }
     ret[i] = '\0';
-    
+
     return (ret);
 }
 
@@ -727,15 +726,15 @@ char *arUtilGetDirectoryNameFromPath(char *dir, const char *path, const size_t n
     char *sep1;
 #endif
     size_t toCopy;
-    
+
     if (!dir || !path || !n) return (NULL);
-    
-	sep = strrchr(path, '/');    
+
+	sep = strrchr(path, '/');
 #ifdef _WIN32
     sep1 = strrchr(path, '\\');
     if (sep1 > sep) sep = sep1;
 #endif
-    
+
 	if (!sep) dir[0] = '\0';
     else {
         toCopy = sep + (addSeparator ? 1 : 0) - path;
@@ -757,12 +756,12 @@ char *arUtilGetFileURI(const char *path)
     int isUNC; // bool
 #endif
     int i;
-    
+
     if (!path) return (NULL);
     if (!*path) return (NULL);
 
     pathlen = strlen(path);
-    
+
     // First check if we've been passed an absolute path.
     isAbsolute = FALSE;
 #ifdef _WIN32
@@ -776,7 +775,7 @@ char *arUtilGetFileURI(const char *path)
 #else
     if (path[0] == '/') isAbsolute = TRUE;
 #endif
-    
+
     // Ensure we have an absolute path.
     if (isAbsolute) {
         abspath = (char *)path;
@@ -806,7 +805,7 @@ char *arUtilGetFileURI(const char *path)
         abspathlen += pathlen;
 #endif
     }
-    
+
 #ifdef _WIN32
     // Windows UNC paths will be stripped of the leading two backslashes.
     if (abspath[0] == '\\' && abspath[1] == '\\') isUNC = TRUE;
@@ -843,7 +842,7 @@ char *arUtilGetFileURI(const char *path)
     }
     urilen++; // nul termination.
     uri = (char *)malloc(urilen * sizeof(char));
-    
+
     // Second pass. Construct the URI.
     sprintf(uri, method);
     urilen = sizeof(method) - 1;
@@ -878,7 +877,7 @@ char *arUtilGetFileURI(const char *path)
 bail:
     if (!isAbsolute) free(abspath);
 #endif
-    
+
     return (uri);
 }
 
@@ -912,8 +911,8 @@ char *arUtilGetResourcesDirectoryPath(AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR behav
     }
 
 	switch (behaviorW) {
-            
-            
+
+
         case AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR_USE_EXECUTABLE_DIR:
 #if (defined(_WIN32) && !defined(_WINRT)) || defined(__APPLE__) || defined(__linux)
             arMallocClear(wpath1, char, MAXPATHLEN);
@@ -951,8 +950,8 @@ char *arUtilGetResourcesDirectoryPath(AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR behav
             return (NULL); // Unsupported OS.
 #endif
             break;
-            
-            
+
+
         case AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR_USE_BUNDLE_RESOURCES_DIR:
 #if defined(__APPLE__)
         {
@@ -976,8 +975,8 @@ char *arUtilGetResourcesDirectoryPath(AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR behav
             return (NULL); // Unsupported OS.
 #endif
             break;
-            
-            
+
+
         case AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR_USE_CWD:
 #ifndef _WINRT
 
@@ -991,8 +990,8 @@ char *arUtilGetResourcesDirectoryPath(AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR behav
 			return (NULL); // Unsupported OS.
 #endif
 			break;
-            
-            
+
+
         case AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR_USE_USER_ROOT:
 #if defined(_WIN32) && !defined(_WINRT)
             arMallocClear(wpath1, char, MAXPATHLEN);
@@ -1004,7 +1003,7 @@ char *arUtilGetResourcesDirectoryPath(AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR behav
 #elif defined(ANDROID)
         {
             // Make JNI calls to get the external storage directory.
-            
+
             // To begin, get a reference to the env and attach to it.
             JNIEnv *env;
             int isAttached = 0;
@@ -1017,7 +1016,7 @@ char *arUtilGetResourcesDirectoryPath(AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR behav
                 }
                 isAttached = 1;
             }
-            
+
             // Get File object for the external storage directory.
             jclass classEnvironment = (*env)->FindClass(env, "android/os/Environment");
             if (!classEnvironment) goto bailAndroid;
@@ -1029,7 +1028,7 @@ char *arUtilGetResourcesDirectoryPath(AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR behav
                 (*env)->ExceptionDescribe(env);
                 (*env)->ExceptionClear(env);
             }
-            
+
             // Call method on File object to retrieve String object.
             jclass classFile = (*env)->GetObjectClass(env, objectFile);
             if (!classFile) goto bailAndroid;
@@ -1045,9 +1044,9 @@ char *arUtilGetResourcesDirectoryPath(AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR behav
             const char *wpath3 = (*env)->GetStringUTFChars(env, stringPath, NULL);
             wpath1 = strdup(wpath3);
             (*env)->ReleaseStringUTFChars(env, stringPath, wpath3);
-            
+
             goto retAndroid;
-            
+
         bailAndroid:
             ARLOGe("Error: JNI call failure.\n");
             wpath1 = NULL;
@@ -1073,8 +1072,8 @@ char *arUtilGetResourcesDirectoryPath(AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR behav
             return (NULL); // Unsupported OS.
 #endif
             break;
-            
-            
+
+
         case AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR_USE_APP_CACHE_DIR:
 #if defined(_WIN32)
             return (NULL);
@@ -1098,7 +1097,7 @@ char *arUtilGetResourcesDirectoryPath(AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR behav
 #elif defined(ANDROID)
         {
             // Make JNI calls to get the Context's cache directory.
-            
+
             // To begin, get a reference to the env and attach to it.
             JNIEnv *env;
             int isAttached = 0;
@@ -1112,7 +1111,7 @@ char *arUtilGetResourcesDirectoryPath(AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR behav
                 }
                 isAttached = 1;
             }
-            
+
             // Get File object for the Context's files directory. This only works
             // if a subclass of Context is supplied.
             // e.g. JNIEXPORT void JNICALL Java_com_test_TestActivity_test(JNIEnv * env, jobject obj)
@@ -1135,7 +1134,7 @@ char *arUtilGetResourcesDirectoryPath(AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR behav
                 (*env)->ExceptionDescribe(env);
                 (*env)->ExceptionClear(env);
             }
-            
+
             // Call method on File object to retrieve String object.
             jclass classFile = (*env)->GetObjectClass(env, objectFile);
             if (!classFile) goto bailAndroid1;
@@ -1151,9 +1150,9 @@ char *arUtilGetResourcesDirectoryPath(AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR behav
             const char *wpath3 = (*env)->GetStringUTFChars(env, stringPath, NULL);
             wpath1 = strdup(wpath3);
             (*env)->ReleaseStringUTFChars(env, stringPath, wpath3);
-            
+
             goto retAndroid1;
-            
+
         bailAndroid1:
             ARLOGe("Error: JNI call failure.\n");
             wpath1 = NULL;
@@ -1193,7 +1192,7 @@ int arUtilChangeToResourcesDirectory(AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR behavi
 {
     char *wpath;
     AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR behaviorW;
-    
+
     if (behavior == AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR_BEST) {
 #if defined(__APPLE__)
         behaviorW = AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR_USE_BUNDLE_RESOURCES_DIR;
@@ -1207,7 +1206,7 @@ int arUtilChangeToResourcesDirectory(AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR behavi
     } else {
         behaviorW = behavior;
     }
-    
+
     if (behaviorW != AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR_USE_SUPPLIED_PATH) {
 #ifdef ANDROID
         wpath = arUtilGetResourcesDirectoryPath(behavior, instanceOfAndroidContext);
@@ -1231,7 +1230,7 @@ int arUtilChangeToResourcesDirectory(AR_UTIL_RESOURCES_DIRECTORY_BEHAVIOR behavi
             return (-1);
         }
     }
-    
+
     return (0);
 }
 #endif // !_WINRT
@@ -1265,20 +1264,20 @@ int arUtilReplaceExt( char *filename, int n, char *ext )
 int arUtilRemoveExt( char *filename )
 {
     int   i, j;
-    
+
     j = -1;
     for( i = 0; filename[i] != '\0'; i++ ) {
         if( filename[i] == '.' ) j = i;
     }
     if( j != -1 ) filename[j] = '\0';
-    
+
     return 0;
 }
 
 int arUtilDivideExt( const char *filename, char *s1, char *s2 )
 {
     int   j, k;
-    
+
     for(j=0;;j++) {
         s1[j] = filename[j];
         if( s1[j] == '\0' || s1[j] == '.' ) break;
@@ -1301,11 +1300,11 @@ char *arUtilGetMachineType(void)
 #if defined(__APPLE__)
     char   *name;
     size_t  size;
-    
+
     sysctlbyname("hw.machine", NULL, &size, NULL, 0);
     arMalloc(name, char, size);
     sysctlbyname("hw.machine", name, &size, NULL, 0);
-    
+
     return name;
 #else
     return (NULL);
@@ -1327,3 +1326,17 @@ void arUtilPrintMtx16(const ARdouble mtx16[16])
         ARLOG("[% .3f % .3f % .3f] [% 6.1f]\n", mtx16[i], mtx16[i + 4], mtx16[i + 8], mtx16[i + 12]);
     }
 }
+
+#ifdef ANDROID
+
+//
+// Get a pointer to a JavaVM instance for those native C/C++ functions that only call from
+// native code to Java code (i.e. without a preceding call from Java to native).
+//
+
+JavaVM* getPtrToJavaVM()
+{
+    return(gJavaVM);
+}
+
+#endif //ANDROID
