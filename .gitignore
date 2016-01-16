@@ -181,8 +181,9 @@ android/obj/local/**/libkpm.a
 android/obj/local/**/libutil.a
 android/obj/local/**/libc++_shared.so
 android/obj/local/**/libcpufeatures.a
-android/libs/**/libARWrapper.so
-android/libs/**/libc++_shared.so
+/**/libs
+#android/libs/**/libARWrapper.so
+#android/libs/**/libc++_shared.so
 EclipseProjects/**/bin/
 EclipseProjects/**/gen/
 EclipseProjects/**/obj/

@@ -37,6 +37,7 @@
 
 #include <AR/video.h>
 #include <stdbool.h>
+#include <ctype.h>
 #if AR_VIDEO_ANDROID_ENABLE_NATIVE_CAMERA
 #  include <sys/time.h> // gettimeofday()
 #endif
@@ -50,16 +51,17 @@
 #include <dlfcn.h>
 
 struct _AR2VideoParamAndroidT {
-    char               device_id[PROP_VALUE_MAX*3+2]; // From <sys/system_properties.h>. 3 properties plus separators.
+    char               device_id[PROP_VALUE_MAX*4+2]; // From <sys/system_properties.h>. 3 properties plus separators.
     int                width;
     int                height;
     AR_PIXEL_FORMAT    format;
     int                camera_index; // 0 = first camera, 1 = second etc.
     int                camera_face; // 0 = camera is rear facing, 1 = camera is front facing.
     float              focal_length; // metres.
+    bool               useUniqueAndroidDevID;
     int                cparamSearchInited;
-    void             (*cparamSearchCallback)(const ARParam *, void *);
-    void              *cparamSearchUserdata;
+    void               (*cparamSearchCallback)(const ARParam *, void *);
+    void*              cparamSearchUserdata;
 #if AR_VIDEO_ANDROID_ENABLE_NATIVE_CAMERA
     VIDEO_ANDROID_NATIVE_CAPTURE *nativeCapture;
     AR2VideoBufferT    buffer;
@@ -82,30 +84,35 @@ int ar2VideoDispOptionAndroid( void )
     ARLOG("    Specifies the path in which to look for/store camera parameter cache files.\n");
     ARLOG("    Default is working directory.\n");
     ARLOG("\n");
-    
+
     return 0;
 }
 
-AR2VideoParamAndroidT *ar2VideoOpenAndroid( const char *config )
+AR2VideoParamAndroidT* ar2VideoOpenAndroid( const char *config )
 {
-    char                     *cacheDir = NULL;
-    AR2VideoParamAndroidT    *vid;
-    const char               *a;
-    char                      line[1024];
-    int err_i = 0;
-    int i;
-    int width = 0, height = 0;
-    
+    char                  *cacheDir = NULL;
+    AR2VideoParamAndroidT *vid;
+    char                  *a;
+    char                  line[1024];
+    int                   err_i = 0;
+    int                   i;
+    int                   width = 0, height = 0;
+    bool                  camCalibByDevID = false;
+
     arMallocClear( vid, AR2VideoParamAndroidT, 1 );
-    
-    a = config;
+
+    for (a = (char*)config; *a != '\0'; ++a)
+        *a = tolower(*a);
+
+    a = (char*)config;
     if( a != NULL) {
         for(;;) {
             while( *a == ' ' || *a == '\t' ) a++;
             if( *a == '\0' ) break;
-            
-            if (sscanf(a, "%s", line) == 0) break;
-            if( strcmp( line, "-device=Android" ) == 0 ) {
+
+            if (sscanf(a, "%s", line) == 0) break; //Get first white space delimited char string from a.
+
+            if( strcmp( line, "-device=android" ) == 0 ) {
             } else if( strncmp( line, "-width=", 7 ) == 0 ) {
                 if( sscanf( &line[7], "%d", &width ) == 0 ) {
                     ARLOGe("Error: Configuration option '-width=' must be followed by width in integer pixels.\n");
@@ -120,13 +127,13 @@ AR2VideoParamAndroidT *ar2VideoOpenAndroid( const char *config )
                 if (strcmp(line+8, "0") == 0) {
                     vid->format = 0;
                     ARLOGi("Requesting images in system default format.\n");
-                } else if (strcmp(line+8, "RGBA") == 0) {
+                } else if (strcmp(line+8, /*"RGBA":*/"rgba") == 0) {
                     vid->format = AR_PIXEL_FORMAT_RGBA;
                     ARLOGi("Requesting images in RGBA format.\n");
-                } else if (strcmp(line+8, "NV21") == 0) {
+                } else if (strcmp(line+8, /*"NV21":*/"nv21") == 0) {
                     vid->format = AR_PIXEL_FORMAT_NV21;
                     ARLOGi("Requesting images in NV21 format.\n");
-                } else if (strcmp(line+8, "420f") == 0 || strcmp(line+8, "NV12") == 0) {
+                } else if (strcmp(line+8, "420f") == 0 || strcmp(line+8, /*"NV12":*/"nv12") == 0) {
                     vid->format = AR_PIXEL_FORMAT_420f;
                     ARLOGi("Requesting images in 420f/NV12 format.\n");
                 } else {
@@ -160,28 +167,29 @@ AR2VideoParamAndroidT *ar2VideoOpenAndroid( const char *config )
             } else if( strncmp( line, "-source=", 8 ) == 0 ) {
                 if( sscanf( &line[8], "%d", &vid->camera_index ) == 0 ) err_i = 1;
 #endif
+            } else if( strncmp( line, /*"-CamCalibByDevID":*/"-camcalibbydevid", 8 ) == 0 ) {
+                camCalibByDevID = true;
             } else {
                 err_i = 1;
             }
-            
+
             if (err_i) {
 				ARLOGe("Error: Unrecognised configuration option '%s'.\n", a);
                 ar2VideoDispOptionAndroid();
                 goto bail;
 			}
-            
-            while( *a != ' ' && *a != '\t' && *a != '\0') a++;
-        }
-    }
-    
-    
+
+            while( *a != ' ' && *a != '\t' && *a != '\0') a++; //Strip off just processed char string from first char and to the right
+        }//end: for(;;)
+    }//end: if( a != NULL)
+
     // Initial state.
     if (!vid->format) vid->format = AR_INPUT_ANDROID_PIXEL_FORMAT;
     if (!vid->focal_length) vid->focal_length = AR_VIDEO_ANDROID_FOCAL_LENGTH_DEFAULT;
 #if AR_VIDEO_ANDROID_ENABLE_NATIVE_CAMERA
     vid->capturing = false;
 #endif
-    
+
     // In lieu of identifying the actual camera, we use manufacturer/model/board to identify a device,
     // and assume that identical devices have identical cameras.
     // Handset ID, via <sys/system_properties.h>.
@@ -193,7 +201,18 @@ AR2VideoParamAndroidT *ar2VideoOpenAndroid( const char *config )
     vid->device_id[len] = '/';
     len++;
     len += __system_property_get(ANDROID_OS_BUILD_BOARD, vid->device_id + len);
-    
+    if (camCalibByDevID) {
+        ARLOG("ar2VideoOpenAndroid(char*): adding ANDROID generated unique device ID to index file");
+        vid->device_id[len] = '/';
+        len++;
+        //TODO: JWolf must add the JNI code that gets the unique Android device ID from
+        //      Android Java code. This code was push to the Github ARToolKit public repo
+        //      and hasn't been merged to the master branch on the GitHub ARToolKit private
+        //      repo where this camera calibration code is sourced.
+        strcpy(vid->device_id + len, "ANDROID_ID:FUBARAndroidDevID");
+        ARLOG("ar2VideoOpenAndroid(char*): final device_id char array: %s", vid->device_id);
+    }
+
 #if AR_VIDEO_ANDROID_ENABLE_NATIVE_CAMERA
     // Open the camera connection. Until this is done, we can't set any properties of the stream.
     if (!(vid->nativeCapture = videoAndroidNativeCaptureOpen(vid->camera_index))) {
@@ -220,14 +239,14 @@ AR2VideoParamAndroidT *ar2VideoOpenAndroid( const char *config )
         goto bail1;
     }
 #endif
-    
+
 #if AR_VIDEO_ANDROID_ENABLE_NATIVE_CAMERA
     // Add any required changes to other properties here.
     //videoAndroidNativeCaptureSetProperty(ANDROID_CAMERA_PROPERTY_FOCUS_MODE, ANDROID_CAMERA_FOCUS_MODE_AUTO);
     //if (!videoAndroidNativeCaptureApplyProperties(vid->nativeCapture)) {
     //    ARLOGe("Unable to apply changes to native Android video.\n");
     //}
-    
+
     // Check format and prepare the vid->buffer structure for later use.
     if (vid->format == AR_PIXEL_FORMAT_NV21 || vid->format == AR_PIXEL_FORMAT_420f) {
         // For non-planar formats, incoming buffers will be served directly,
@@ -243,7 +262,7 @@ AR2VideoParamAndroidT *ar2VideoOpenAndroid( const char *config )
         ARLOGe("Error opening Android video: Unsupported video format %s (%d).\n", arVideoUtilGetPixelFormatName(vid->format), vid->format);
         goto bail1;
     }
-    
+
     ARLOGi("Opened native video %dx%d, %s.\n", vid->width, vid->height, arVideoUtilGetPixelFormatName(vid->format));
 #endif
 
@@ -260,41 +279,43 @@ AR2VideoParamAndroidT *ar2VideoOpenAndroid( const char *config )
     goto done;
 
 #if AR_VIDEO_ANDROID_ENABLE_NATIVE_CAMERA
-bail1:
-    videoAndroidNativeCaptureClose(&vid->nativeCapture);
+    bail1:
+        videoAndroidNativeCaptureClose(&vid->nativeCapture);
 #endif
-bail:
-    free(vid);
-    vid = NULL;
-done:
-    free(cacheDir);
-    return (vid);
-}
+    bail: {
+        free(vid);
+        vid = NULL;
+    }
+    done:
+        free(cacheDir);
+
+    return(vid);
+}//end: AR2VideoParamAndroidT* ar2VideoOpenAndroid( const char *config )
 
 int ar2VideoCloseAndroid( AR2VideoParamAndroidT *vid )
 {
     if (!vid) return (-1); // Sanity check.
-    
+
 #if AR_VIDEO_ANDROID_ENABLE_NATIVE_CAMERA
     // Free image stuff.
     if (vid->capturing) ar2VideoCapStopAndroid(vid);
     if (vid->buffer.bufPlaneCount == 0) free(vid->buffer.buff);
     else free(vid->buffer.bufPlanes);
-    
+
     // Clean up native capture;
     if (!videoAndroidNativeCaptureClose(&vid->nativeCapture)) {
         ARLOGe("Error shutting down native Android video.\n");
     }
 #endif
-    
+
     if (cparamSearchFinal() < 0) {
         ARLOGe("Unable to finalise cparamSearch.\n");
     }
-    
+
     free( vid );
-    
+
     return 0;
-} 
+}
 
 int ar2VideoGetIdAndroid( AR2VideoParamAndroidT *vid, ARUint32 *id0, ARUint32 *id1 )
 {
@@ -304,10 +325,10 @@ int ar2VideoGetIdAndroid( AR2VideoParamAndroidT *vid, ARUint32 *id0, ARUint32 *i
 int ar2VideoGetSizeAndroid(AR2VideoParamAndroidT *vid, int *x,int *y)
 {
     if (!vid) return -1;
-    
+
     if (x) *x = vid->width;
     if (y) *y = vid->height;
-    
+
     return 0;
 }
 
@@ -316,10 +337,10 @@ int ar2VideoGetSizeAndroid(AR2VideoParamAndroidT *vid, int *x,int *y)
 AR2VideoBufferT *ar2VideoGetImageAndroid( AR2VideoParamAndroidT *vid )
 {
     if (!vid) return NULL;
-    
+
     unsigned char *frame = videoAndroidNativeCaptureGetFrame(vid->nativeCapture);
     if (!frame) return NULL;
-    
+
     if (vid->format == AR_PIXEL_FORMAT_NV21 || vid->format == AR_PIXEL_FORMAT_420f) {
         vid->buffer.bufPlanes[0] = vid->buffer.buff = (ARUint8 *)frame; // Luma plane.
         vid->buffer.bufPlanes[1] = (ARUint8 *)(frame + vid->width*vid->height); // Chroma plane.
@@ -328,15 +349,15 @@ AR2VideoBufferT *ar2VideoGetImageAndroid( AR2VideoParamAndroidT *vid )
     } else {
         return NULL;
     }
-    
+
     vid->buffer.fillFlag = 1;
-    
+
     // Get time of capture.
     struct timeval time;
     gettimeofday(&time, NULL);
     vid->buffer.time_sec = time.tv_sec;
     vid->buffer.time_usec = time.tv_usec;
-    
+
     return (&vid->buffer);
 }
 
@@ -349,29 +370,29 @@ int ar2VideoCapStartAsyncAndroid(AR2VideoParamAndroidT *vid, AR_VIDEO_FRAME_READ
 {
     if (!vid) return -1;
     if (vid->capturing) return -1; // Already capturing.
-    
+
     if (!videoAndroidNativeCaptureStart(vid->nativeCapture, callback, userdata)) {
         ARLOGe("Error starting native frame capture.\n");
         return -1;
     }
     vid->capturing = true;
-    
+
     return 0;
 }
 
 int ar2VideoCapStopAndroid(AR2VideoParamAndroidT *vid)
 {
     int ret = 0;
-    
+
     if (!vid) return -1;
     if (!vid->capturing) return -1; // Not capturing.
-    
+
     if (!videoAndroidNativeCaptureStop(vid->nativeCapture)) {
         ARLOGe("Error stopping native frame capture.\n");
         ret = -1;
     }
     vid->capturing = false;
-    
+
     return ret;
 }
 
@@ -380,14 +401,14 @@ int ar2VideoCapStopAndroid(AR2VideoParamAndroidT *vid)
 AR_PIXEL_FORMAT ar2VideoGetPixelFormatAndroid( AR2VideoParamAndroidT *vid )
 {
     if (!vid) return AR_PIXEL_FORMAT_INVALID;
-    
+
     return vid->format;
 }
 
 int ar2VideoGetParamiAndroid( AR2VideoParamAndroidT *vid, int paramName, int *value )
 {
     if (!vid || !value) return (-1);
-    
+
     switch (paramName) {
 #if !AR_VIDEO_ANDROID_ENABLE_NATIVE_CAMERA
         case AR_VIDEO_PARAM_ANDROID_WIDTH:          *value = vid->width; break;
@@ -405,7 +426,7 @@ int ar2VideoGetParamiAndroid( AR2VideoParamAndroidT *vid, int paramName, int *va
 int ar2VideoSetParamiAndroid( AR2VideoParamAndroidT *vid, int paramName, int  value )
 {
     if (!vid) return (-1);
-    
+
     switch (paramName) {
 #if !AR_VIDEO_ANDROID_ENABLE_NATIVE_CAMERA
         case AR_VIDEO_PARAM_ANDROID_WIDTH:          vid->width = value; break;
@@ -448,7 +469,7 @@ int ar2VideoSetParamdAndroid( AR2VideoParamAndroidT *vid, int paramName, double 
 int ar2VideoGetParamsAndroid( AR2VideoParamAndroidT *vid, const int paramName, char **value )
 {
     if (!vid || !value) return (-1);
-    
+
     switch (paramName) {
         case AR_VIDEO_PARAM_ANDROID_DEVICEID:       *value = vid->device_id; break;
         default:
@@ -460,7 +481,7 @@ int ar2VideoGetParamsAndroid( AR2VideoParamAndroidT *vid, const int paramName, c
 int ar2VideoSetParamsAndroid( AR2VideoParamAndroidT *vid, const int paramName, const char  *value )
 {
     if (!vid) return (-1);
-    
+
     switch (paramName) {
         default:
             return (-1);
@@ -473,7 +494,7 @@ static void cparamSeachCallback(CPARAM_SEARCH_STATE state, float progress, const
     int final = false;
     AR2VideoParamAndroidT *vid = (AR2VideoParamAndroidT *)userdata;
     if (!vid) return;
-    
+
     switch (state) {
         case CPARAM_SEARCH_STATE_INITIAL:
         case CPARAM_SEARCH_STATE_IN_PROGRESS:
@@ -500,7 +521,7 @@ static void cparamSeachCallback(CPARAM_SEARCH_STATE state, float progress, const
     if (final) vid->cparamSearchCallback = vid->cparamSearchUserdata = NULL;
 }
 
-#if (__ANDROID_API__ >= 21) 
+#if (__ANDROID_API__ >= 21)
 // Android 'L' makes __system_property_get a non-global symbol.
 // Here we provide a stub which loads the symbol from libc via dlsym.
 typedef int (*PFN_SYSTEM_PROP_GET)(const char *, char *);
@@ -520,7 +541,7 @@ int __system_property_get(const char* name, char* value)
         }
     }
     return (*__real_system_property_get)(name, value);
-} 
+}
 #endif // __ANDROID_API__ >= 21
 
 int ar2VideoGetCParamAsyncAndroid(AR2VideoParamAndroidT *vid, void (*callback)(const ARParam *, void *), void *userdata)
@@ -532,13 +553,13 @@ int ar2VideoGetCParamAsyncAndroid(AR2VideoParamAndroidT *vid, void (*callback)(c
 
     vid->cparamSearchCallback = callback;
     vid->cparamSearchUserdata = userdata;
-    
+
     CPARAM_SEARCH_STATE initialState = cparamSearch(vid->device_id, vid->camera_index, vid->width, vid->height, vid->focal_length, &cparamSeachCallback, (void *)vid);
     if (initialState != CPARAM_SEARCH_STATE_INITIAL) {
         ARLOGe("Error %d returned from cparamSearch.\n", initialState);
         vid->cparamSearchCallback = vid->cparamSearchUserdata = NULL;
         return (-1);
     }
-    
+
     return (0);
 }
