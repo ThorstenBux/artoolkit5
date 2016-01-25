@@ -6,21 +6,20 @@ model {
         buildToolsVersion = "23.0.2"
 
         defaultConfig.with {
-            applicationId = "sample.ar.artoolkit.org.armarkerdistance"
+            applicationId = "sample.ar.artoolkit.org.armarkerdistancegl20"
             minSdkVersion.apiLevel = 15
             targetSdkVersion.apiLevel = 22
-            versionCode = 104
-            versionName = "1.0.4"
+            versionCode = 1
+            versionName = "1.0"
         }
     }
     android.buildTypes {
             release {
-                minifyEnabled = false
-                proguardFiles.add(file("proguard-rules.pro"))
+                minifyEnabled =  false
+                proguardFiles.add(file('proguard-android.txt'))
             }
     }
 }
 dependencies {
     compile project(':aRBaseLib')
 }
-

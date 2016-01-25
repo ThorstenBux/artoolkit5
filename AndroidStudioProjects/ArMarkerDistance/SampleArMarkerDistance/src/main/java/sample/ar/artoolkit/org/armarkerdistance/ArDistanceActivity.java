@@ -2,8 +2,6 @@ package sample.ar.artoolkit.org.armarkerdistance;
 
 import android.os.Bundle;
 import android.widget.FrameLayout;
-import android.widget.TextView;
-
 import org.artoolkit.ar.base.ARActivity;
 import org.artoolkit.ar.base.rendering.ARRenderer;
 
@@ -14,13 +12,11 @@ public class ArDistanceActivity extends ARActivity{
     private SimpleARRenderer renderer;
 
     private FrameLayout mainView;
-    private TextView textHello;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        textHello = (TextView) this.findViewById(R.id.textView);
         renderer = new SimpleARRenderer(this);
 
         setContentView(R.layout.activity_ar_distance);

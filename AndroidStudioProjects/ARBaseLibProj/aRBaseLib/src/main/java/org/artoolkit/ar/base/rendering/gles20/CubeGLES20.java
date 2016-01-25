@@ -5,7 +5,7 @@ import org.artoolkit.ar.base.rendering.Cube;
 /**
  * Created by Thorsten Bux on 21.01.2016.
  */
-public class CubeGLES20 extends Cube {
+public class CubeGLES20 extends Cube implements ARDrawableOpenGLES20{
 
     private ShaderProgram shaderProgram;
 

@@ -11,11 +11,19 @@ import javax.microedition.khronos.opengles.GL10;
  */
 public class Line {
 
-    private final float[] start;
-    private final float[] end;
+    private float[] start;
+    private float[] end;
     private float width;
 
     private FloatBuffer mVertexBuffer;
+
+    /**
+     *     Should only be used when instanciating a line using {@link org.artoolkit.ar.base.rendering.gles20.LineGLES20}
+
+     */
+    protected Line(){
+
+    }
 
     /**
      *
@@ -57,5 +65,25 @@ public class Line {
 
     public void setWidth(float width){
         this.width = width;
+    }
+
+    public FloatBuffer getMVertexBuffer() {
+        return this.mVertexBuffer;
+    }
+
+    public float[] getStart() {
+        return start;
+    }
+
+    public void setStart(float[] start) {
+        this.start = start;
+    }
+
+    public float[] getEnd() {
+        return end;
+    }
+
+    public void setEnd(float[] end) {
+        this.end = end;
     }
 }

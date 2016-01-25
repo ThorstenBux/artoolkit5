@@ -14,10 +14,4 @@
         android:layout_height="480px">
     </FrameLayout>
 
-    <TextView
-        android:layout_width="274dp"
-        android:layout_height="wrap_content"
-        android:text="New Text"
-        android:id="@+id/textView"
-        android:layout_weight="0.27" />
 </LinearLayout>

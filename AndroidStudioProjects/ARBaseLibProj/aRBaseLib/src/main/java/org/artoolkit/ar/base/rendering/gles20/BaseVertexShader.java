@@ -17,7 +17,6 @@ public class BaseVertexShader implements OpenGLShader {
 
                     + "void main()                    \n"     // The entry point for our vertex shader.
                     + "{                              \n"
-                     // It will be interpolated across the triangle.
                     + "	  vec4 p = " + OpenGLShader.modelViewMatrixString + " * " + OpenGLShader.positionVectorString + "; \n "     // transform vertex position with modelview matrix
                     + "   gl_Position = " + OpenGLShader.projectionMatrixString + " \n"     // gl_Position is a special variable used to store the final position.
                     + "               * p;   			\n"     // Multiply the vertex by the matrix to get the final point in
