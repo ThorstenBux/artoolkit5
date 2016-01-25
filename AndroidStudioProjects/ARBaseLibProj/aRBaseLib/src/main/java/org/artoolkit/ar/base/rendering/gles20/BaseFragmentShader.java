@@ -6,7 +6,7 @@ import android.opengl.GLES20;
  * Created by Thorsten Bux on 21.01.2016.
  */
 public class BaseFragmentShader implements OpenGLShader{
-    final String fragmentShader =
+    String fragmentShader =
             "precision mediump float;       \n"     // Set the default precision to medium. We don't need as high of a
                     // precision in the fragment shader.
                    // triangle per fragment.
@@ -43,5 +43,10 @@ public class BaseFragmentShader implements OpenGLShader{
             throw new RuntimeException("Error creating fragment shader.\\n" + fragmentShaderErrorLog);
         }
         return fragmentShaderHandle;
+    }
+
+    @Override
+    public void setShaderSource(String source) {
+        this.fragmentShader = source;
     }
 }

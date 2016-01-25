@@ -11,4 +11,6 @@ public interface OpenGLShader {
 
     public int configureShader();
 
+    public void setShaderSource(String source);
+
 }

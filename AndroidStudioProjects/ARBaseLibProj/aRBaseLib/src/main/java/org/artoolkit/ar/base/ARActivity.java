@@ -211,7 +211,7 @@ public abstract class ARActivity extends Activity implements CameraEventListener
 			}
 			else {
 				Log.w(TAG, "OpenGL ES 2.x is supported but only a OpenGL 1.x renderer is available." +
-						" \n Uses Continuing ARRendererGLES20 for ES 2.x support. \n with OpenGL 1.x.");
+						" \n Use ARRendererGLES20 for ES 2.x support. \n Continuing with OpenGL 1.x.");
 				glView.setEGLContextClientVersion(1);
 			}
 		}

@@ -7,7 +7,7 @@ import android.opengl.GLES20;
  */
 public class BaseVertexShader implements OpenGLShader {
 
-    final String vertexShader =
+    private String vertexShaderSource =
             "uniform mat4 u_MVPMatrix;        \n"     // A constant representing the combined model/view/projection matrix.
 
                     + "uniform mat4 " + OpenGLShader.projectionMatrixString + "; \n"		// projection matrix
@@ -32,7 +32,7 @@ public class BaseVertexShader implements OpenGLShader {
         if (vertexShaderHandle != 0)
         {
             // Pass in the shader source.
-            GLES20.glShaderSource(vertexShaderHandle, vertexShader);
+            GLES20.glShaderSource(vertexShaderHandle, vertexShaderSource);
 
             // Compile the shader.
             GLES20.glCompileShader(vertexShaderHandle);
@@ -55,5 +55,9 @@ public class BaseVertexShader implements OpenGLShader {
         }
 
         return vertexShaderHandle;
+    }
+
+    public void setShaderSource(String vertexShaderSource){
+        this.vertexShaderSource = vertexShaderSource;
     }
 }

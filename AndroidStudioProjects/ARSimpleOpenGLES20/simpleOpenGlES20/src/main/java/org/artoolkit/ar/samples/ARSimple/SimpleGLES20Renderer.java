@@ -82,7 +82,7 @@ public class SimpleGLES20Renderer extends ARRendererGLES20 {
 	}
 
 	//Shader calls should be within a GL thread that is onSurfaceChanged(), onSurfaceCreated() or onDrawFrame()
-	//As the cube instantiates the shader during constructor call we need to do create the cube here.
+	//As the cube instantiates the shader during setShaderProgram call we need to create the cube here.
 	@Override
 	public void onSurfaceCreated(GL10 unused, EGLConfig config) {
 		super.onSurfaceCreated(unused, config);
