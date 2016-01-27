@@ -1,5 +1,5 @@
 /*
- *  SimpleRenderer.java
+ *  ARSimpleApplication.java
  *  ARToolKit5
  *
  *  Disclaimer: IMPORTANT:  This Daqri software is supplied to you by Daqri
@@ -43,61 +43,45 @@
  *  Copyright 2015 Daqri, LLC.
  *  Copyright 2011-2015 ARToolworks, Inc.
  *
- *  Author(s): Julian Looser, Philip Lamb
+ *  Author(s): Philip Lamb
  *
  */
 
-package org.artoolkit.ar.samples.ARSimple;
+//
+// This class provides a subclass of Application to enable app-wide behavior.
+// 
 
-import org.artoolkit.ar.base.ARToolKit;
-import org.artoolkit.ar.base.rendering.ARRenderer;
-import org.artoolkit.ar.base.rendering.Cube;
+package org.artoolkit.ar.samples.ardistanceopengles20;
 
-import javax.microedition.khronos.opengles.GL10;
+import android.app.Application;
 
-/**
- * A very simple Renderer that adds a marker and draws a cube on it.
- */
-public class SimpleRenderer extends ARRenderer {
+import org.artoolkit.ar.base.assets.AssetHelper;
 
-	private int markerID = -1;
-	private Cube cube = new Cube(40.0f, 0.0f, 0.0f, 20.0f);
+public class ARDistanceApplication extends Application {
 
-	/**
-	 * Markers can be configured here.
-	 */
-	@Override
-	public boolean configureARScene() {
-
-		markerID = ARToolKit.getInstance().addMarker("single;Data/patt.hiro;80");
-		if (markerID < 0) return false;
-
-		return true;
-	}
-
-	/**
-	 * Override the render function from ARRenderer.
-	 */
-	@Override
-	public void draw(GL10 gl) {
-
-		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
-
-		// Apply the ARToolKit projection matrix
-		gl.glMatrixMode(GL10.GL_PROJECTION);
-		gl.glLoadMatrixf(ARToolKit.getInstance().getProjectionMatrix(), 0);
-	
-		gl.glEnable(GL10.GL_CULL_FACE);
-        gl.glShadeModel(GL10.GL_SMOOTH);
-        gl.glEnable(GL10.GL_DEPTH_TEST);        
-    	gl.glFrontFace(GL10.GL_CW);
-    			
-		// If the marker is visible, apply its transformation, and render a cube
-		if (ARToolKit.getInstance().queryMarkerVisible(markerID)) {
-			gl.glMatrixMode(GL10.GL_MODELVIEW);
-			gl.glLoadMatrixf(ARToolKit.getInstance().queryMarkerTransformation(markerID), 0);
-			cube.draw(gl);
-		}
-
-	}
+	private static Application sInstance;
+	 
+	// Anywhere in the application where an instance is required, this method
+	// can be used to retrieve it.
+    public static Application getInstance() {
+    	return sInstance;
+    }
+    
+    @Override
+    public void onCreate() {
+    	super.onCreate(); 
+    	sInstance = this;
+    	((ARDistanceApplication) sInstance).initializeInstance();
+    }
+    
+    // Here we do one-off initialisation which should apply to all activities
+	// in the application.
+    protected void initializeInstance() {
+    	
+		// Unpack assets to cache directory so native library can read them.
+    	// N.B.: If contents of assets folder changes, be sure to increment the
+    	// versionCode integer in the AndroidManifest.xml file.
+		AssetHelper assetHelper = new AssetHelper(getAssets());
+		assetHelper.cacheAssetFolder(getInstance(), "Data");
+    }
 }

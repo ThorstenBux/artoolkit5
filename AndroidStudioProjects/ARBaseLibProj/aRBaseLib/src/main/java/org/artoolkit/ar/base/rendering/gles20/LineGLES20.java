@@ -28,15 +28,8 @@ public class LineGLES20 extends Line implements ARDrawableOpenGLES20{
         shaderProgram.setProjectionMatrix(projectionMatrix);
         shaderProgram.setModelViewMatrix(modelViewMatrix);
 
-        int startLength= getStart().length;
-        float[] vertex = new float[startLength +getEnd().length];
-
-        for (int i = 0; i < vertex.length; i++){
-            vertex[i] = getStart()[i];
-            vertex[i+ startLength] = getEnd()[i];
-        }
-
-        shaderProgram.render(vertex);
+        this.setArrays();
+        shaderProgram.render(this.getMVertexBuffer(), this.getmColorBuffer(),null);
 
     }
 

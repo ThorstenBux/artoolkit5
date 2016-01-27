@@ -1,16 +1,12 @@
-package sample.ar.artoolkit.org.armarkerdistancegl20;
+package org.artoolkit.ar.samples.ardistanceopengles20;
 
 import android.os.Bundle;
 import android.widget.FrameLayout;
 
 import org.artoolkit.ar.base.ARActivity;
 import org.artoolkit.ar.base.rendering.ARRenderer;
-import org.artoolkit.ar.base.rendering.gles20.ARRendererGLES20;
 
-/**
- * Created by Thorsten Bux on 25.01.2016.
- */
-public class ARDistanceGL20Activity extends ARActivity {
+public class MarkerDistanceActivity extends ARActivity {
 
     private FrameLayout mainView;
 
@@ -18,7 +14,7 @@ public class ARDistanceGL20Activity extends ARActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.layout);
+        setContentView(R.layout.activity_marker_distance);
     }
 
     @Override
@@ -28,7 +24,6 @@ public class ARDistanceGL20Activity extends ARActivity {
 
     @Override
     protected FrameLayout supplyFrameLayout() {
-        return (FrameLayout) this.findViewById(R.id.distanceGL20layout);
+        return (FrameLayout) this.findViewById(R.id.mainLayout);
     }
-
 }
