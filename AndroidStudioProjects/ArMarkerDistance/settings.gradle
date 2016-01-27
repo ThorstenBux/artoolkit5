@@ -1,1 +1,1 @@
-include ':SampleArMarkerDistance', ':GLText', ':aRBaseLib'
+include ':SampleArMarkerDistance', ':aRBaseLib'
