@@ -55,7 +55,7 @@ public class MarkerDistanceActivity extends ARActivity {
 
     @Override
     protected ARRenderer supplyRenderer() {
-        return new ARDistanceRenderer();
+        return new ARDistanceRenderer(this);
     }
 
     @Override
