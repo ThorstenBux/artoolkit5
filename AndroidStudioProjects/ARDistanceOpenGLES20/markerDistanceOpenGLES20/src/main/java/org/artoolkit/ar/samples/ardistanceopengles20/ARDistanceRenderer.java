@@ -36,6 +36,7 @@
  */
 package org.artoolkit.ar.samples.ardistanceopengles20;
 
+import android.content.Context;
 import android.opengl.GLES20;
 import android.util.Log;
 
@@ -46,6 +47,8 @@ import org.artoolkit.ar.base.rendering.gles20.ARRendererGLES20;
 import org.artoolkit.ar.base.rendering.gles20.BaseVertexShader;
 import org.artoolkit.ar.base.rendering.gles20.LineGLES20;
 import org.artoolkit.ar.base.rendering.gles20.ShaderProgram;
+import org.artoolkit.ar.samples.ardistanceopengles20.shader.MarkerDistanceFragmentShader;
+import org.artoolkit.ar.samples.ardistanceopengles20.shader.MarkerDistanceShaderProgram;
 
 import java.util.AbstractCollection;
 import java.util.ArrayList;
@@ -56,8 +59,7 @@ import java.util.Map;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import org.artoolkit.ar.samples.ardistanceopengles20.shader.MarkerDistanceFragmentShader;
-import org.artoolkit.ar.samples.ardistanceopengles20.shader.MarkerDistanceShaderProgram;
+import gltext3des20.GLText;
 
 /**
  * Created by Thorsten Bux on 25.01.2016.
@@ -65,12 +67,17 @@ import org.artoolkit.ar.samples.ardistanceopengles20.shader.MarkerDistanceShader
 public class ARDistanceRenderer extends ARRendererGLES20{
 
     private static final String TAG = "ARDistanceRenderer";
+    private final Context context;
     private ARToolKit arToolKit;
     private int markerId2;
     private int markerId1;
     private AbstractCollection<Integer> markerArray = new ArrayList<>();
     ARDrawableOpenGLES20 line;
+    private GLText glText;
 
+    public ARDistanceRenderer(Context context) {
+        this.context = context;
+    }
 
     @Override
     public boolean configureARScene() {
@@ -120,6 +127,24 @@ public class ARDistanceRenderer extends ARRendererGLES20{
                 ((Line) line).setColor(color);
 
                 line.draw(arToolKit.getProjectionMatrix(), transformationMatrixPerVisibleMarker.get(markerId1));
+
+
+                // TEST: render the entire font texture
+                //glText.drawTexture(100 / 2, 100 / 2, arToolKit.getProjectionMatrix());            // Draw the Entire Texture
+
+                // TEST: render some strings with the font
+                glText.begin(1.0f, 0.0f, 0.0f, 1.0f, arToolKit.getProjectionMatrix());         // Begin Text Rendering (Set Color WHITE)
+                glText.draw("1", transformationMatrixPerVisibleMarker.get(markerId1));
+                //glText.drawC("Test String 3D!", 0f, 0f, 0f, 0, -30, 0);
+//		glText.drawC( "Test String :)", 0, 0, 0 );          // Draw Test String
+                //glText.draw( "Diagonal 1", 40, 40, 40);                // Draw Test String
+                //glText.draw( "Column 1", 100, 100, 90);              // Draw Test String
+                glText.end();                                   // End Text Rendering
+
+                //glText.begin( 0.0f, 0.0f, 1.0f, 1.0f, arToolKit.getProjectionMatrix() );         // Begin Text Rendering (Set Color BLUE)
+                //glText.draw( "More Lines...", 50, 200 );        // Draw Test String
+                //glText.draw( "The End.", 50, 200 + glText.getCharHeight(), 180);  // Draw Test String
+                //glText.end();                                   // End Text Rendering
             }
         }
     }
@@ -135,6 +160,17 @@ public class ARDistanceRenderer extends ARRendererGLES20{
 
         line = new LineGLES20(lineWidth);
         line.setShaderProgram(shaderProgram);
+
+        // Create the GLText
+        glText = new GLText(context.getAssets());
+
+        // Load the font from file (set size + padding), creates the texture
+        // NOTE: after a successful call to this the font is ready for rendering!
+        glText.load("Roboto-Regular.ttf", 14, 2, 2);  // Create Font (Height: 14 Pixels / X+Y Padding 2 Pixels)
+
+        // enable texture + alpha blending
+        GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA);
     }
 
     private Map<Integer, float[]> storeTransformationMatrixPerVisibleMarker() {
