@@ -55,10 +55,19 @@ include/AR/config.h
 share/artoolkit5-config
 Makefile
 
-# iOS build products
+#Linux / iOS Build products
 lib/libAR*.a
 lib/libEden.a
 lib/libKPM.a
+lib/libUtil.a
+
+#CMake build products
+**/cmakebuild/*.a
+**/cmakebuild/CMakeFiles/*
+**/cmakebuild/CMakeCache.txt
+**/cmakebuild/*.cmake
+**/cmakebuild/*Cache*
+**/cmakebuild/_CPack_Packages
 
 # Linux/OS X/Windows build products
 bin/calib_*
