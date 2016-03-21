@@ -37,9 +37,9 @@ include_directories(${ARTK_HOME}/include
                     ${ARTK_HOME}/examples/stereo/
 )
 #Link to the ARToolkit libs
-link_directories(${OUTPUT_DIR})
+link_directories(${OUTPUT_DIR}lib/)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}examples/)
 
 #Compile all executables
 add_executable(simpleLite ${simpleLite_SRCS})

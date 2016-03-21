@@ -17,11 +17,6 @@ message( STATUS "Architecture: ${ARCHITECTURE}" )
 #Unfortunately that leads to cmake adding a backslash (\) to all semicolons. We replace them prior to writing the file out later.
 FILE(STRINGS ${ARTK_HOME}/include/AR/config.h.in CONFIG_H_IN NEWLINE_CONSUME)
 
-#Read version number from config.h.in file
-execute_process(COMMAND sed -En -e "s/.*AR_HEADER_VERSION_STRING[[:space:]]+\"([0-9]+\.[0-9]+(\.[0-9]+)*)\".*/\\1/p" ${ARTK_HOME}/include/AR/config.h.in OUTPUT_VARIABLE ARTK_VERSION)
-message(STATUS "Version: " ${ARTK_VERSION})
-
-
 #Enable all video modes and set GStreamer to default
 #string(REPLACE <match_string> <replace_string> <output variable> <input> [<input>...])
 
