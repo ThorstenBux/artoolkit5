@@ -37,9 +37,9 @@ include_directories(${ARTK_HOME}/include
                     ${ARTK_HOME}/util/calib_optical)
 
 #Link to the ARToolkit libs
-link_directories(${OUTPUT_DIR})
+link_directories(${OUTPUT_DIR}lib)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}util/)
 
 #Compile all executables
 add_executable(checkImage ${checkImage_SRCS})
