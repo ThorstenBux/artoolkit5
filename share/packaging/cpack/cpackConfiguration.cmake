@@ -1,4 +1,4 @@
-set(ARTK_HOME ../../../..)
+set(ARTK_HOME ${PROJECT_SOURCE_DIR}/../../../../..)
 
 set(BUILD_ARTEFACTS_PREFIX lib)
 
@@ -27,8 +27,6 @@ message(STATUS ${ARTKSDK_PACKAGE_ARCH_SUFFIX})
 
 ##Fill the package control file with the needed information
 #Package control file is required and has some important fields that need to be filled.
-SET(CPACK_PACKAGE_DESCRIPTION "ARToolKit runtime")
-SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "ARToolKit.org runtime: \n Contains all necessary libraries for ARToolKit to run.\n For more information visit www.ARToolKit.org. \n Fork us on Github https://github.com/artoolkit/artoolkit5")
 SET(CPACK_PACKAGE_VENDOR "ARToolKit.org")
 SET(CPACK_PACKAGE_CONTACT "info@artoolkit.org")
 

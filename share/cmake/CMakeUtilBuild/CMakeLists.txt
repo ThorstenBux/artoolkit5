@@ -39,7 +39,7 @@ include_directories(${ARTK_HOME}/include
 #Link to the ARToolkit libs
 link_directories(${OUTPUT_DIR}lib)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}util/)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}util/)
 
 #Compile all executables
 add_executable(checkImage ${checkImage_SRCS})
@@ -80,4 +80,7 @@ target_link_libraries(mk_patt ARosg ${LIBS_Simple})
 #SET_TARGET_PROPERTIES(calib_stereo PROPERTIES LINKER_LANGUAGE CXX)
 SET_TARGET_PROPERTIES(dispFeatureSet PROPERTIES LINKER_LANGUAGE CXX)
 SET_TARGET_PROPERTIES(genTexData PROPERTIES LINKER_LANGUAGE CXX)
+
+INSTALL(TARGETS checkImage listCamera whiteBalance calib_camera calib_optical calib_stereo check_id checkResolution dispFeatureSet dispImageSet genMarkerSet genTexData mk_patt 
+RUNTIME DESTINATION ${OUTPUT_DIR}util/)
 
