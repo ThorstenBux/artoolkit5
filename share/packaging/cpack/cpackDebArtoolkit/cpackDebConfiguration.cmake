@@ -2,14 +2,14 @@ set(CPACK_DEBIAN_PACKAGE_NAME ${PROJECT_NAME})
 
 ##Add changelog file
 # Generate deb change log file
-execute_process(COMMAND gzip -9 -c ${CMAKE_CURRENT_SOURCE_DIR}/changelog.Debian
+execute_process(COMMAND gzip -9 -c ${CMAKE_CURRENT_SOURCE_DIR}/../changelog.Debian
                 WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
                 OUTPUT_FILE "${PROJECT_BINARY_DIR}/changelog.Debian.gz")
 
 
 ##Preparing the copyright file
 #Prepare the DEBIAN copyright header
-FILE(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/copyright_template.txt COPYRIGHT_HEADER NEWLINE_CONSUME)
+FILE(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/../copyright_template.txt COPYRIGHT_HEADER NEWLINE_CONSUME)
 #Get copyright header and our license text together
 string(CONCAT COPYRIGHT_OUT "${COPYRIGHT_HEADER}" "${LICENSE_IN}" "\n\n  .\n On Debian systems, the complete text of the GNU Lesser General Public License can be found in '/usr/share/common-licenses/LGPL-3'")
 #Write to file
@@ -31,4 +31,12 @@ SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "ARToolKit.org <info@artoolkit.org>") #requi
 
 ## End control file settings
 
-
+#SETUP directory structure with correct permissions
+INSTALL(DIRECTORY DESTINATION /usr DIRECTORY_PERMISSIONS
+OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+INSTALL(DIRECTORY DESTINATION /usr/share DIRECTORY_PERMISSIONS
+OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+INSTALL(DIRECTORY DESTINATION /usr/share/doc DIRECTORY_PERMISSIONS
+OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+INSTALL(DIRECTORY DESTINATION /usr/share/doc/${CPACK_DEBIAN_PACKAGE_NAME} DIRECTORY_PERMISSIONS
+OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)

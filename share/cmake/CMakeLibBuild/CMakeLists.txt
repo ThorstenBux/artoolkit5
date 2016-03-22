@@ -83,3 +83,7 @@ add_library(ARWrapper SHARED ${LIB_Eden_SRCS})
 add_library(ARosg ${LIB_AROSG_SRCS})
 
 set_property(TARGET KPM PROPERTY CXX_STANDARD 11)
+
+INSTALL(TARGETS AR AR2 ARICP KPM Util ARMulti ARgsub ARgsub_lite ARVideo Eden ARWrapper ARosg
+ARCHIVE DESTINATION ${OUTPUT_DIR}lib/
+LIBRARY DESTINATION ${OUTPUT_DIR}lib/)

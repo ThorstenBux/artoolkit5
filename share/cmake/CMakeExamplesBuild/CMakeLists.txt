@@ -39,7 +39,7 @@ include_directories(${ARTK_HOME}/include
 #Link to the ARToolkit libs
 link_directories(${OUTPUT_DIR}lib/)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}examples/)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}examples/)
 
 #Compile all executables
 add_executable(simpleLite ${simpleLite_SRCS})
@@ -79,4 +79,7 @@ SET_TARGET_PROPERTIES(simpleOSG PROPERTIES LINKER_LANGUAGE CXX)
 SET_TARGET_PROPERTIES(stereo PROPERTIES LINKER_LANGUAGE CXX)
 SET_TARGET_PROPERTIES(optical PROPERTIES LINKER_LANGUAGE CXX)
 SET_TARGET_PROPERTIES(opticalStereo PROPERTIES LINKER_LANGUAGE CXX)
+
+INSTALL(TARGETS simpleLite simpleTest simpleMovie simpleOSG multiTest multiCube multiWin nftSimple nftBook stereo optical opticalStereo
+RUNTIME DESTINATION ${OUTPUT_DIR}examples/)
 
