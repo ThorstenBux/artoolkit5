@@ -1,20 +1,19 @@
-rm -r CMakeFiles
-rm CMakeCache.txt
-rm cmake_install.cmake
-rm Makefile
-cmake -DCMAKE_TOOLCHAIN_FILE=../32bitLinuxConfiguration.cmake ../CMakeLibBuild/
-make
+rm -rf ./build
+mkdir build
+cd build
+cmake -DCMAKE_TOOLCHAIN_FILE=../../32bitLinuxConfiguration.cmake ../../CMakeLibBuild/
+make install
 
-rm -r CMakeFiles
-rm CMakeCache.txt
-rm cmake_install.cmake
-rm Makefile
-cmake -DCMAKE_TOOLCHAIN_FILE=../32bitLinuxConfiguration.cmake ../CMakeUtilBuild/
-make
+cd ..
+rm -rf ./build
+mkdir build
+cd build
+cmake -DCMAKE_TOOLCHAIN_FILE=../../32bitLinuxConfiguration.cmake ../../CMakeUtilBuild/
+make install
 
-rm -r CMakeFiles
-rm CMakeCache.txt
-rm cmake_install.cmake
-rm Makefile
-cmake -DCMAKE_TOOLCHAIN_FILE=../32bitLinuxConfiguration.cmake ../CMakeExamplesBuild/
-make
+cd ..
+rm -rf ./build
+mkdir build
+cd build
+cmake -DCMAKE_TOOLCHAIN_FILE=../../32bitLinuxConfiguration.cmake ../../CMakeExamplesBuild/
+make install
