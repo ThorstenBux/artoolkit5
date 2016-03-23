@@ -8,6 +8,9 @@ include(../cpackDebConfiguration.cmake)
 #Read all util files
 file(GLOB AR_utils ${BUILD_ARTEFACTS_DIR}util/*)
 
+#Set all data files that we need to include
+set(AR_utils_data "${ARTK_HOME}/bin/Data/camera_para.dat" "${ARTK_HOME}/bin/Data/calibStereoMarkerConfig.dat" "${ARTK_HOME}/bin/Data/calib.patt" "${ARTK_HOME}/bin/Data/hiro.patt")
+
 #TODO: Somehow the CMake build produces util files that contain debug information. We do not want that. That is why we strip it here.
 foreach(util-file ${AR_utils})
     execute_process(COMMAND strip -s -o ${util-file} ${util-file})
@@ -17,15 +20,17 @@ endforeach(util-file)
 INSTALL(DIRECTORY DESTINATION /usr/share/${CPACK_DEBIAN_PACKAGE_NAME} DIRECTORY_PERMISSIONS
 OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
+INSTALL(DIRECTORY DESTINATION /usr/share/${CPACK_DEBIAN_PACKAGE_NAME}/Data DIRECTORY_PERMISSIONS
+OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
 INSTALL(DIRECTORY DESTINATION /usr/bin DIRECTORY_PERMISSIONS
 OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
-##Add the util files
+##Add the util binary files
 INSTALL(FILES ${AR_utils} DESTINATION bin PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 ##Add data files
-INSTALL(DIRECTORY ${ARTK_HOME}/bin/Data DESTINATION /usr/share/${CPACK_DEBIAN_PACKAGE_NAME} DIRECTORY_PERMISSIONS
-OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+INSTALL(FILES ${AR_utils_data} DESTINATION share/${CPACK_DEBIAN_PACKAGE_NAME}/Data)
 
 #Name needed dependencies
 SET(CPACK_DEBIAN_PACKAGE_DEPENDS "artoolkit-lib, libc6")
