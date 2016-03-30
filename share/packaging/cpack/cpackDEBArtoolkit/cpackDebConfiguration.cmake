@@ -24,10 +24,10 @@ install(FILES ${PROJECT_BINARY_DIR}/copyright DESTINATION /usr/share/doc/${CPACK
 
 
 ##control file settings for all deb packages 
-SET(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "http://www.artoolkit.org")
 set(CPACK_DEBIAN_PACKAGE_SECTION "devel")
-SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "ARToolKit.org <info@artoolkit.org>") #required
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "ARToolKit.org <info@artoolkit.org>") #required
 
 ## End control file settings
 

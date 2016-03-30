@@ -1,6 +1,17 @@
 mkdir ../packages
 mkdir ../cmakepackaging
 
+echo "Do you want to build DEB or RPM packages? (d or r)"
+echo -n "Enter : "
+read ANS 
+if [ "$ANS" = "d" ] 
+then
+   packageGenerator="DEB"
+else
+   packageGenerator="RPM"
+fi
+
+
 echo "Do you want to build the artoolkit-lib package? (y or n)"
 echo -n "Enter : "
 read ANS
@@ -8,9 +19,9 @@ if [ "$ANS" = "y" ]
 then
     rm -rf ../cmakepackaging/*
     cd ../cmakepackaging
-    cmake -DCPACK_GENERATOR="DEB" ../cpackDebArtoolkit/lib/
+    cmake -DCPACK_GENERATOR=$packageGenerator ../cpack"$packageGenerator"Artoolkit/lib/
     cpack
-    mv *.deb ../packages/
+    mv *.${packageGenerator,,} ../packages/
 fi
 
 echo "Do you want to build the artoolkit-dev package? (y or n)"
@@ -20,7 +31,7 @@ if [ "$ANS" = "y" ]
 then
     rm -rf ../cmakepackaging/*
     cd ../cmakepackaging
-    cmake -DCPACK_GENERATOR="DEB" ../cpackDebArtoolkit/dev/
+    cmake -DCPACK_GENERATOR=$packageGenerator ../cpack"$packageGenerator"Artoolkit/dev/
     cpack
     mv *.deb ../packages/
 fi
@@ -32,7 +43,7 @@ if [ "$ANS" = "y" ]
 then
     rm -rf ../cmakepackaging/*
     cd ../cmakepackaging
-    cmake -DCPACK_GENERATOR="DEB" ../cpackDebArtoolkit/examples/
+    cmake -DCPACK_GENERATOR=$packageGenerator ../cpack"$packageGenerator"Artoolkit/examples/
     cpack
     mv *.deb ../packages/
 fi
@@ -44,7 +55,7 @@ if [ "$ANS" = "y" ]
 then
     rm -rf ../cmakepackaging/*
     cd ../cmakepackaging
-    cmake -DCPACK_GENERATOR="DEB" ../cpackDebArtoolkit/utils/
+    cmake -DCPACK_GENERATOR=$packageGenerator ../cpack"$packageGenerator"Artoolkit/utils/
     cpack
     mv *.deb ../packages/
 fi
@@ -56,7 +67,7 @@ if [ "$ANS" = "y" ]
 then
     rm -rf ../cmakepackaging/*
     cd ../cmakepackaging
-    cmake -DCPACK_GENERATOR="DEB" ../cpackDebArtoolkit/complete/
+    cmake -DCPACK_GENERATOR=$packageGenerator ../cpack"$packageGenerator"Artoolkit/complete/
     cpack
     mv *.deb ../packages/
 fi
