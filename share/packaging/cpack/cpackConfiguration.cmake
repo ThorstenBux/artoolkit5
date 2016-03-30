@@ -4,31 +4,12 @@ set(BUILD_ARTEFACTS_PREFIX lib)
 
 ###General configuration
 
-if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
-  set(CPACK_DEBIAN_ARCHITECTURE "amd64")
-  set(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
-    set(BUILD_ARTEFACTS_DIR /opt/jenkins/artoolkitBuildArtifacts/64bit/)
-else()
-  set(CPACK_DEBIAN_ARCHITECTURE "i386")
-  set(CPACK_RPM_PACKAGE_ARCHITECTURE "i686")
-    set(BUILD_ARTEFACTS_DIR /opt/jenkins/artoolkitBuildArtifacts/32bit/)
-endif()
-
-if(${CPACK_GENERATOR} STREQUAL "DEB")
-  set(ARTKSDK_PACKAGE_ARCH_SUFFIX ${CPACK_DEBIAN_ARCHITECTURE})
-elseif(CPACK_GENERATOR STREQUAL "RPM")
-  set(ARTKSDK_PACKAGE_ARCH_SUFFIX ${CPACK_RPM_PACKAGE_ARCHITECTURE})
-else()
-  set(ARTKSDK_PACKAGE_ARCH_SUFFIX ${CMAKE_SYSTEM_PROCESSOR})
-endif()
-
-message(STATUS ${ARTKSDK_PACKAGE_ARCH_SUFFIX})
-
-
 ##Fill the package control file with the needed information
 #Package control file is required and has some important fields that need to be filled.
 SET(CPACK_PACKAGE_VENDOR "ARToolKit.org")
 SET(CPACK_PACKAGE_CONTACT "info@artoolkit.org")
+set(CPACK_PACKAGE_NAME ${CMAKE_PROJECT_NAME})
+
 
 ##Set the ARToolKit SDK version into the controll file
 #Fetch the ARToolKit SDK version from the config.h.in file and set it to the corresponding variables
@@ -40,15 +21,14 @@ string(STRIP "${MAJOR_VERSION}" MAJOR_VERSION)
 string(STRIP "${MINOR_VERSION}" MINOR_VERSION)
 string(STRIP "${PATCH_VERSION}" PATCH_VERSION)
 
-SET(CPACK_PACKAGE_VERSION_MAJOR "${MAJOR_VERSION}")
-SET(CPACK_PACKAGE_VERSION_MINOR "${MINOR_VERSION}")
-SET(CPACK_PACKAGE_VERSION_PATCH "${PATCH_VERSION}")
+set(CPACK_PACKAGE_VERSION_MAJOR "${MAJOR_VERSION}")
+set(CPACK_PACKAGE_VERSION_MINOR "${MINOR_VERSION}")
+set(CPACK_PACKAGE_VERSION_PATCH "${PATCH_VERSION}")
+set(CPACK_PACKAGE_VERSION "${MAJOR_VERSION}.${MINOR_VERSION}.${PATCH_VERSION}")
 
 message(STATUS "Version: " "${MAJOR_VERSION}" "." "${MINOR_VERSION}" "." "${PATCH_VERSION}")
 ##End Ser ARToolKit SDK version in controll file
 
-#Set DEB package file name. Needs to be ProjectName_MajorVersion.MinorVersion.PatchVersion_CpuArchitecture
-SET(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}_${MAJOR_VERSION}.${MINOR_VERSION}.${CPACK_PACKAGE_VERSION_PATCH}_${ARTKSDK_PACKAGE_ARCH_SUFFIX}")
 
 ###End configuration
 
@@ -64,5 +44,28 @@ execute_process(COMMAND gzip -9 -c ${PROJECT_BINARY_DIR}/ChangeLog.txt
                 OUTPUT_FILE "${PROJECT_BINARY_DIR}/changelog.gz")
 
 
+#Architecture and package file name
+if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+  set(CPACK_DEBIAN_ARCHITECTURE "amd64")
+  set(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
+    set(BUILD_ARTEFACTS_DIR /opt/jenkins/artoolkitBuildArtifacts/64bit/)
+else()
+  set(CPACK_DEBIAN_ARCHITECTURE "i386")
+  set(CPACK_RPM_PACKAGE_ARCHITECTURE "i686")
+  set(BUILD_ARTEFACTS_DIR /opt/jenkins/artoolkitBuildArtifacts/32bit/)
+endif()
+
+if(${CPACK_GENERATOR} STREQUAL "DEB")
+  set(ARTKSDK_PACKAGE_ARCH_SUFFIX ${CPACK_DEBIAN_ARCHITECTURE})
+  #Set DEB package file name. Needs to be ProjectName_MajorVersion.MinorVersion.PatchVersion_CpuArchitecture
+  set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${MAJOR_VERSION}.${MINOR_VERSION}.${CPACK_PACKAGE_VERSION_PATCH}_${ARTKSDK_PACKAGE_ARCH_SUFFIX}")
+elseif(${CPACK_GENERATOR} STREQUAL "RPM")
+  set(ARTKSDK_PACKAGE_ARCH_SUFFIX ${CPACK_RPM_PACKAGE_ARCHITECTURE})
+  set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}.${CPACK_RPM_PACKAGE_ARCHITECTURE}")
+else()
+  set(ARTKSDK_PACKAGE_ARCH_SUFFIX ${CMAKE_SYSTEM_PROCESSOR})
+endif()
+
+message(STATUS ${ARTKSDK_PACKAGE_ARCH_SUFFIX})
 
 
