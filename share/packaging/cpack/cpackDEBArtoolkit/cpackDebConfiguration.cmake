@@ -8,6 +8,9 @@ execute_process(COMMAND gzip -9 -c ${CMAKE_CURRENT_SOURCE_DIR}/../changelog.Debi
 
 
 ##Preparing the copyright file
+#Read license file
+FILE(STRINGS ${ARTK_HOME}/LICENSE.txt LICENSE_IN NEWLINE_CONSUME)
+
 #Prepare the DEBIAN copyright header
 FILE(STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/../copyright_template.txt COPYRIGHT_HEADER NEWLINE_CONSUME)
 #Get copyright header and our license text together
@@ -31,12 +34,27 @@ set(CPACK_DEBIAN_PACKAGE_MAINTAINER "ARToolKit.org <info@artoolkit.org>") #requi
 
 ## End control file settings
 
-#SETUP directory structure with correct permissions
+#Zip changelog file
+execute_process(COMMAND gzip -9 -c ${PROJECT_BINARY_DIR}/ChangeLog.txt
+                WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+                OUTPUT_FILE "${PROJECT_BINARY_DIR}/changelog.gz")
+
+
+#SETUP doc-directory structure with correct permissions
 INSTALL(DIRECTORY DESTINATION /usr DIRECTORY_PERMISSIONS
 OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 INSTALL(DIRECTORY DESTINATION /usr/share DIRECTORY_PERMISSIONS
 OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 INSTALL(DIRECTORY DESTINATION /usr/share/doc DIRECTORY_PERMISSIONS
 OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-INSTALL(DIRECTORY DESTINATION /usr/share/doc/${CPACK_DEBIAN_PACKAGE_NAME} DIRECTORY_PERMISSIONS
+INSTALL(DIRECTORY DESTINATION /usr/share/doc/${PROJECT_NAME} DIRECTORY_PERMISSIONS
 OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+
+
+##Include the changelog files
+#Two changelog files are shipped. One that comes with the SDK and one that is in the DEB format to fullfill the DEB package needs.
+install(FILES "${PROJECT_BINARY_DIR}/changelog.gz"
+              "${PROJECT_BINARY_DIR}/changelog.Debian.gz"
+              DESTINATION "/usr/share/doc/${CPACK_DEBIAN_PACKAGE_NAME}")
+#INFO: In a regular deb file the changelog and the copyright file go directly into the DEBIAN directory. But that is not supported by CPACK. 
+#As we like to provide them we ship them using the /usr/share/doc/ProjectName/ directory.

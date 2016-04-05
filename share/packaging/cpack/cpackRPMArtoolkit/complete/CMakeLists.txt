@@ -4,9 +4,9 @@ PROJECT(artoolkit)
 
 include(../../cpackConfiguration.cmake)
 include(../../cpackArtoolkit-completeConfiguration.cmake)
-include(../cpackDebConfiguration.cmake)
+include(../cpackRpmConfiguration.cmake)
 
 #Name needed dependencies
-SET(CPACK_DEBIAN_PACKAGE_DEPENDS "artoolkit-lib, artoolkit-dev, artoolkit-examples, artoolkit-utils")
+SET(CPACK_RPM_PACKAGE_REQUIRES "artoolkit-lib, artoolkit-dev, artoolkit-examples, artoolkit-utils")
 
 INCLUDE(CPack)

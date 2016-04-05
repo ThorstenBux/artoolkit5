@@ -33,7 +33,7 @@ then
     cd ../cmakepackaging
     cmake -DCPACK_GENERATOR=$packageGenerator ../cpack"$packageGenerator"Artoolkit/dev/
     cpack
-    mv *.deb ../packages/
+    mv *.${packageGenerator,,} ../packages/
 fi
 
 echo "Do you want to build the artoolkit-examples package? (y or n)"
@@ -45,7 +45,7 @@ then
     cd ../cmakepackaging
     cmake -DCPACK_GENERATOR=$packageGenerator ../cpack"$packageGenerator"Artoolkit/examples/
     cpack
-    mv *.deb ../packages/
+    mv *.${packageGenerator,,} ../packages/
 fi
 
 echo "Do you want to build the artoolkit-utils package? (y or n)"
@@ -57,7 +57,7 @@ then
     cd ../cmakepackaging
     cmake -DCPACK_GENERATOR=$packageGenerator ../cpack"$packageGenerator"Artoolkit/utils/
     cpack
-    mv *.deb ../packages/
+    mv *.${packageGenerator,,} ../packages/
 fi
 
 echo "Do you want to build the artoolkit complete meta package? (y or n)"
@@ -69,7 +69,7 @@ then
     cd ../cmakepackaging
     cmake -DCPACK_GENERATOR=$packageGenerator ../cpack"$packageGenerator"Artoolkit/complete/
     cpack
-    mv *.deb ../packages/
+    mv *.${packageGenerator,,} ../packages/
 fi
 
 echo "Packages generated to ../packages/"

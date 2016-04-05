@@ -32,27 +32,20 @@ message(STATUS "Version: " "${MAJOR_VERSION}" "." "${MINOR_VERSION}" "." "${PATC
 
 ###End configuration
 
-#Read license file
-FILE(STRINGS ${ARTK_HOME}/LICENSE.txt LICENSE_IN NEWLINE_CONSUME)
-
-#Copy ChangeLog.txt to ${PROJECT_BINARY_DIR} because we need to gzip it later and gzip command cannot work with relative paths
+#Copy ChangeLog.txt to ${PROJECT_BINARY_DIR} because we need to gzip it later and gzip command does not work with relative paths
 file(COPY ${ARTK_HOME}/ChangeLog.txt DESTINATION ${PROJECT_BINARY_DIR})
-
-#Zip changelog file
-execute_process(COMMAND gzip -9 -c ${PROJECT_BINARY_DIR}/ChangeLog.txt
-                WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-                OUTPUT_FILE "${PROJECT_BINARY_DIR}/changelog.gz")
-
 
 #Architecture and package file name
 if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
   set(CPACK_DEBIAN_ARCHITECTURE "amd64")
   set(CPACK_RPM_PACKAGE_ARCHITECTURE "x86_64")
-    set(BUILD_ARTEFACTS_DIR /opt/jenkins/artoolkitBuildArtifacts/64bit/)
+  set(BUILD_ARTEFACTS_DIR /opt/jenkins/artoolkitBuildArtifacts/64bit/)
+  set(LIB_POSTFIX "64")
 else()
   set(CPACK_DEBIAN_ARCHITECTURE "i386")
   set(CPACK_RPM_PACKAGE_ARCHITECTURE "i686")
   set(BUILD_ARTEFACTS_DIR /opt/jenkins/artoolkitBuildArtifacts/32bit/)
+  set(LIB_POSTFIX "")
 endif()
 
 if(${CPACK_GENERATOR} STREQUAL "DEB")
@@ -61,11 +54,10 @@ if(${CPACK_GENERATOR} STREQUAL "DEB")
   set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${MAJOR_VERSION}.${MINOR_VERSION}.${CPACK_PACKAGE_VERSION_PATCH}_${ARTKSDK_PACKAGE_ARCH_SUFFIX}")
 elseif(${CPACK_GENERATOR} STREQUAL "RPM")
   set(ARTKSDK_PACKAGE_ARCH_SUFFIX ${CPACK_RPM_PACKAGE_ARCHITECTURE})
-  set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}.${CPACK_RPM_PACKAGE_ARCHITECTURE}")
+  #The '-1' is the package release version number. As we number ARToolKit on its own I don't see a reason for making this number configurable.
+  set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-1.${CPACK_RPM_PACKAGE_ARCHITECTURE}")
 else()
   set(ARTKSDK_PACKAGE_ARCH_SUFFIX ${CMAKE_SYSTEM_PROCESSOR})
 endif()
 
 message(STATUS ${ARTKSDK_PACKAGE_ARCH_SUFFIX})
-
-
