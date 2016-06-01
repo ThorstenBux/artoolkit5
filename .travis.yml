@@ -1,0 +1,53 @@
+# Ubuntu 14.04 Trusty support
+sudo: required
+dist: trusty
+
+language: cpp
+
+compiler: 
+    - gcc
+
+os: linux
+
+#Install dependencies
+before_install:
+  ############################################################################
+  # All the dependencies are installed in ${TRAVIS_BUILD_DIR}/deps/
+  ############################################################################
+    - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+    - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
+
+    # All build results are copied in ${TRAVIS_BUILD_DIR}/output
+    - mkdir ${DEPS_DIR}/output
+
+    - sudo apt-get remove cmake -y
+    - sudo apt-get update
+    - sudo apt-get install -y build-essential
+    - sudo apt-get install -y libjpeg-dev
+    - sudo apt-get install -y libgstreamer0.10-dev
+    - sudo apt-get install -y libv4l-dev
+    - sudo apt-get install -y libdc1394-22-dev
+    - sudo apt-get install -y libgl1-mesa-dev
+    - sudo apt-get install -y freeglut3-dev
+    - sudo apt-get install -y libopenscenegraph-dev
+
+#Install CMAKE
+    - CMAKE_URL="https://cmake.org/files/v3.4/cmake-3.4.3-Linux-x86_64.tar.gz"
+    - mkdir cmake && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
+    - export PATH=${DEPS_DIR}/cmake/bin:${PATH}
+
+#Build steps
+script:
+    - cd ${TRAVIS_BUILD_DIR}
+    - pwd
+    - ls
+    - cd share/cmake/cmakebuild
+    - mkdir build
+    - cd build
+    - cmake -DCMAKE_TOOLCHAIN_FILE=../../64bitLinuxConfiguration.cmake -DCMAKE_INSTALL_PREFIX=${DEPS_DIR}/output ../../CMakeLibBuild/
+    - make install -d
+
+# whitelist
+branches:
+  only:
+    - ARTK-139
