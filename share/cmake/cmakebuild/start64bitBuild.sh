@@ -2,7 +2,7 @@ rm -rf ./build
 mkdir build
 cd build
 cmake -DCMAKE_TOOLCHAIN_FILE=../../64bitLinuxConfiguration.cmake ../../CMakeLibBuild/
-make install
+make install VERBOSE=1
 
 cd ..
 rm -rf ./build

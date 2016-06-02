@@ -31,3 +31,6 @@ string(REPLACE "\#define   AR_INPUT_1394CAM_DEFAULT_PIXEL_FORMAT   AR_PIXEL_FORM
 string(REPLACE "\;" ";" OUTPUT_VAR "${OUTPUT_VAR}")
 FILE(WRITE ${ARTK_HOME}/include/AR/config.h "${OUTPUT_VAR}")
 
+#CMAKE compiler flags need to be set after the 'project'-command that is why we cannot define them in the 64bitLinuxConfiguration.cmake file up front
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=core2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=core2")

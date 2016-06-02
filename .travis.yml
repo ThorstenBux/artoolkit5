@@ -4,6 +4,8 @@ dist: trusty
 
 language: cpp
 
+cache: ccache
+
 compiler: 
     - gcc
 
@@ -45,7 +47,7 @@ script:
     - mkdir build
     - cd build
     - cmake -DCMAKE_TOOLCHAIN_FILE=../../64bitLinuxConfiguration.cmake -DCMAKE_INSTALL_PREFIX=${DEPS_DIR}/output ../../CMakeLibBuild/
-    - make install -d
+    - make install
 
 # whitelist
 branches:
