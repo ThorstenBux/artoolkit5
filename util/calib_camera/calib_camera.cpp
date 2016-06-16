@@ -52,8 +52,8 @@
 #  include <unistd.h> // getcwd
 #endif
 #ifdef __APPLE__
-#  include <OpenGL/gl.h>
 #  include "opencv2/calib3d/calib3d_c.h"
+#  include <OpenGL/gl.h>
 #elif defined(__linux) || defined(_WIN32)
 #  include <GL/gl.h>
 #  include "opencv2/calib3d/calib3d.hpp"
