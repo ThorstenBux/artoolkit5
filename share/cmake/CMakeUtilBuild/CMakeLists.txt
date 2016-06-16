@@ -34,6 +34,7 @@ file(GLOB mkPatt_SRCS ${ARTK_UTIL_SRC}/mk_patt/*.c)
 
 #All headers to include
 include_directories(${ARTK_HOME}/include
+                    ${ARTK_HOME}/include/linux-x86_64
                     ${ARTK_HOME}/util/calib_optical)
 
 #Link to the ARToolkit libs

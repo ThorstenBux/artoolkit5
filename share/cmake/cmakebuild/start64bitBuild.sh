@@ -1,19 +1,19 @@
-rm -rf ./build
-mkdir build
-cd build
-cmake -DCMAKE_TOOLCHAIN_FILE=../../64bitLinuxConfiguration.cmake ../../CMakeLibBuild/
-make install VERBOSE=1
-
-cd ..
-rm -rf ./build
-mkdir build
-cd build
-cmake -DCMAKE_TOOLCHAIN_FILE=../../64bitLinuxConfiguration.cmake ../../CMakeUtilBuild/
+rm -rf ./workingDir
+mkdir workingDir
+cd workingDir
+cmake -DCMAKE_TOOLCHAIN_FILE=../../64bitLinuxConfiguration.cmake -DCMAKE_INSTALL_PREFIX=~/output/ ../../CMakeLibBuild/
 make install
 
 cd ..
-rm -rf ./build
-mkdir build
-cd build
-cmake -DCMAKE_TOOLCHAIN_FILE=../../64bitLinuxConfiguration.cmake ../../CMakeExamplesBuild/
+rm -rf ./workingDir
+mkdir workingDir
+cd workingDir
+cmake -DCMAKE_TOOLCHAIN_FILE=../../64bitLinuxConfiguration.cmake -DCMAKE_INSTALL_PREFIX=~/output/ ../../CMakeUtilBuild/
+make install VERBOSE=1
+
+cd ..
+rm -rf ./workingDir
+mkdir workingDir
+cd workingDir
+cmake -DCMAKE_TOOLCHAIN_FILE=../../64bitLinuxConfiguration.cmake -DCMAKE_INSTALL_PREFIX=~/output/ ../../CMakeExamplesBuild/
 make install
