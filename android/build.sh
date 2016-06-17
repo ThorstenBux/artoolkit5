@@ -41,6 +41,10 @@
 # changed any of the library source.
 # The core libraries are built first, followed by the wrapper.
 #--------------------------------------------------------------------------
+#debug log
+#set -x
+#fail if any commands fails
+set -e
 
 #
 # Find out where we are and change to our directory

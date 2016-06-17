@@ -47,6 +47,11 @@
 #
 # Find out where we are and change to ARToolKit5-Android root.
 #
+# debug log
+# set -x
+# fail if any commands fails
+set -e
+
 OURDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "${OURDIR}/../"
 echo "Working from directory \"$PWD\"."
