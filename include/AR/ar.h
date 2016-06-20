@@ -77,6 +77,8 @@
 #  include <jni.h>
 #  include <android/log.h>
 #endif
+#include <stdbool.h>
+
 
 #ifdef __cplusplus
 extern "C" {
