@@ -64,6 +64,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 #ifndef _WIN32 // errno is defined in stdlib.h on Windows.
 #  ifdef EMSCRIPTEN // errno is not in sys/
 #    include <errno.h>
@@ -77,7 +78,6 @@
 #  include <jni.h>
 #  include <android/log.h>
 #endif
-#include <stdbool.h>
 
 
 #ifdef __cplusplus
