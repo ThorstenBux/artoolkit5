@@ -686,6 +686,8 @@ EXPORT_API bool arwGetMarkerOptionBool(int markerUID, int option)
         case ARW_MARKER_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION:
             if (marker->type == ARMarker::SINGLE) return (((ARMarkerSquare *)marker)->useContPoseEstimation);
             break;
+        case ARW_MARKER_OPTION_SAME:
+            if (marker->type == ARMarker::SINGLE) return ((ARMarkerSquare *)marker)->getMultipleTimes();
         default:
             gARTK->logv(AR_LOG_LEVEL_ERROR, "arwGetMarkerOptionBool(): Unrecognised option %d.", option);
             break;
@@ -710,6 +712,8 @@ EXPORT_API void arwSetMarkerOptionBool(int markerUID, int option, bool value)
         case ARW_MARKER_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION:
             if (marker->type == ARMarker::SINGLE) ((ARMarkerSquare *)marker)->useContPoseEstimation = value;
             break;
+        case ARW_MARKER_OPTION_SAME:
+            if (marker->type == ARMarker::SINGLE) ((ARMarkerSquare *)marker)->setMultipleTimes(value);
         default:
             gARTK->logv(AR_LOG_LEVEL_ERROR, "arwSetMarkerOptionBool(): Unrecognised option %d.", option);
             break;

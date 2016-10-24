@@ -56,6 +56,7 @@ protected:
     ARdouble m_width;
     ARdouble m_cf;
     ARdouble m_cfMin;
+    bool m_multipleTimes;
     
     bool unload();
     
@@ -71,6 +72,8 @@ public:
     ARdouble getConfidence();
     ARdouble getConfidenceCutoff();
     void setConfidenceCutoff(ARdouble value);
+    void setMultipleTimes(bool value);
+    bool getMultipleTimes();
     
 	bool initWithPatternFile(const char* path, ARdouble width, ARPattHandle *arPattHandle);
 	bool initWithPatternFromBuffer(const char* buffer, ARdouble width, ARPattHandle *arPattHandle);

@@ -176,6 +176,14 @@ void ARMarkerSquare::setConfidenceCutoff(ARdouble value)
     }
 }
 
+void ARMarkerSquare::setMultipleTimes(bool value){
+    m_multipleTimes = value;
+}
+
+bool ARMarkerSquare::getMultipleTimes(){
+    return m_multipleTimes;
+}
+
 bool ARMarkerSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle *ar3DHandle) {
 
     //ARController::logv("ARMarkerSquare::update()");
@@ -193,11 +201,22 @@ bool ARMarkerSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int mar
                 if (patt_id == markerInfo[j].idPatt) {
                     // The pattern of detected trapezoid matches marker[k].
                     if (k == -1) {
-                        if (markerInfo[j].cfPatt > m_cfMin) k = j; // Count as a match if match confidence exceeds cfMin.
-                    } else if (markerInfo[j].cfPatt > markerInfo[k].cfPatt) k = j; // Or if it exceeds match confidence of a different already matched trapezoid (i.e. assume only one instance of each marker).
+                        if (markerInfo[j].cfPatt > m_cfMin) {
+                           k = j; 
+                        } // Count as a match if match confidence exceeds cfMin.
+                    }
+                    else if (markerInfo[j].cfPatt > markerInfo[k].cfPatt) {
+                        k = j;
+                    } // Or if it exceeds match confidence of a different already matched trapezoid (i.e. assume only one instance of each marker).
+                }
+                if(m_multipleTimes && k != -1){
+                    markerInfo[k].id = markerInfo[k].idPatt;
+                    markerInfo[k].cf = markerInfo[k].cfPatt;
+                    markerInfo[k].dir = markerInfo[k].dirPatt;
+                    k == -1;
                 }
             }
-            if (k != -1) {
+            if (!m_multipleTimes && k != -1) {
                 markerInfo[k].id = markerInfo[k].idPatt;
                 markerInfo[k].cf = markerInfo[k].cfPatt;
                 markerInfo[k].dir = markerInfo[k].dirPatt;
