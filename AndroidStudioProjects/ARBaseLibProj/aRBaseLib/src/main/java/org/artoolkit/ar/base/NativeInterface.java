@@ -46,6 +46,12 @@ import android.util.Log;
  */
 public class NativeInterface {
 
+    public static int AR_LOG_LEVEL_DEBUG = 0;
+    public static int AR_LOG_LEVEL_INFO = 1;
+    public static int AR_LOG_LEVEL_WARN = 2;
+    public static int AR_LOG_LEVEL_ERROR = 3;
+    public static int AR_LOG_LEVEL_REL_INFO = 4;
+
     /**
      * Android logging tag for this class.
      */
@@ -435,4 +441,5 @@ public class NativeInterface {
 	
     public static native int arwGetImageProcMode();
 
+    public static native void arwSetLogLevel(int logLevel);
 }

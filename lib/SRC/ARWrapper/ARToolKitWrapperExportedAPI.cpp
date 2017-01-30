@@ -937,6 +937,8 @@ extern "C" {
     JNIEXPORT jboolean JNICALL JNIFUNCTION(arwAcceptVideoImageStereo(JNIEnv *env, jobject obj, jbyteArray pinArrayL, jint widthL, jint heightL, jint cameraIndexL, jboolean cameraIsFrontFacingL, jbyteArray pinArrayR, jint widthR, jint heightR, jint cameraIndexR, jboolean cameraIsFrontFacingR));
 
     JNIEXPORT bool JNICALL JNIFUNCTION(arwUpdateDebugTexture32(JNIEnv *env, jobject obj, jbyteArray pinArray));
+    
+    JNIEXPORT void JNICALL JNIFUNCTION(arwSetLogLevel(JNIEnv *env, jobject obj, jint logLevel));
 
 	// ------------------------------------------------------------------------------------
 	// JNI Functions Not Yet Implemented
@@ -1296,6 +1298,11 @@ JNIEXPORT bool  JNICALL JNIFUNCTION(arwUpdateDebugTexture32(JNIEnv *env, jobject
 	}
 
 	return updated;
+}
+
+JNIEXPORT void JNICALL JNIFUNCTION(arwSetLogLevel(JNIEnv *env, jobject obj, jint logLevel))
+{
+    arwSetLogLevel(logLevel);
 }
 
 #endif // TARGET_PLATFORM_ANDROID

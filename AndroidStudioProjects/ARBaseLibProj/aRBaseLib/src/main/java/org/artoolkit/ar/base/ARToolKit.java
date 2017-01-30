@@ -449,4 +449,12 @@ public class ARToolKit {
         }
         return null;
     }
+    /**
+     * Set the log level for the ARWrapper library.
+     *
+     * @param logLevel see {@link NativeInterface#AR_LOG_LEVEL_DEBUG}
+     */
+    public void setLogLevelInArWrapper(int logLevel){
+        NativeInterface.arwSetLogLevel(logLevel);
+    }
 }
