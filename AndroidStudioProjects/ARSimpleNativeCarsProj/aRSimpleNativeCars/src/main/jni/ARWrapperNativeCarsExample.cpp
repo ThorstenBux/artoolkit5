@@ -69,10 +69,14 @@ typedef struct ARModel {
 	ARdouble transformationMatrix[16];
 	bool visible;
 	GLMmodel* obj;
+	ARdouble offset;
 } ARModel;
 
 #define NUM_MODELS 2
 static ARModel models[NUM_MODELS] = {0};
+
+#define NUM_INTERACTION_MODELS 2
+static ARModel interactionModels[NUM_INTERACTION_MODELS] = {0};
 
 static float lightAmbient[4] = {0.1f, 0.1f, 0.1f, 1.0f};
 static float lightDiffuse[4] = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -110,6 +114,17 @@ JNIEXPORT void JNICALL JNIFUNCTION_DEMO(demoInitialise(JNIEnv* env, jobject obje
 	//glmRotate(models[1].obj, 3.14159f / 2.0f, 1.0f, 0.0f, 0.0f);
 	glmCreateArrays(models[1].obj, GLM_SMOOTH | GLM_MATERIAL | GLM_TEXTURE);
 	models[1].visible = false;
+
+	//Add interaction markers
+    interactionModels[0].patternID = arwAddMarker("single;Data/left.patt;80");
+    arwSetMarkerOptionBool(interactionModels[0].patternID, ARW_MARKER_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false);
+    arwSetMarkerOptionBool(interactionModels[0].patternID, ARW_MARKER_OPTION_FILTERED, true);
+    interactionModels[0].visible = false;
+
+    interactionModels[1].patternID = arwAddMarker("single;Data/right.patt;80");
+    arwSetMarkerOptionBool(interactionModels[1].patternID, ARW_MARKER_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false);
+    arwSetMarkerOptionBool(interactionModels[1].patternID, ARW_MARKER_OPTION_FILTERED, true);
+    interactionModels[1].visible = false;
 }
 
 JNIEXPORT void JNICALL JNIFUNCTION_DEMO(demoShutdown(JNIEnv* env, jobject object)) {
@@ -127,6 +142,28 @@ JNIEXPORT void JNICALL JNIFUNCTION_DEMO(demoSurfaceCreated(JNIEnv* env, jobject 
 
 JNIEXPORT void JNICALL JNIFUNCTION_DEMO(demoSurfaceChanged(JNIEnv* env, jobject object, jint w, jint h)) {
 	// glViewport(0, 0, w, h) has already been set.
+}
+
+void moveLeft(){
+    //Find out which model we need to modify
+    for (int i = 0; i < NUM_MODELS; i++) {
+        models[i].visible = arwQueryMarkerTransformation(models[i].patternID, models[i].transformationMatrix);
+
+        if (models[i].visible) {
+            models[i].offset -= 1.0;
+        }
+    }
+}
+
+void moveRight(){
+    //Find out which model we need to modify
+    for (int i = 0; i < NUM_MODELS; i++) {
+        models[i].visible = arwQueryMarkerTransformation(models[i].patternID, models[i].transformationMatrix);
+
+        if (models[i].visible) {
+            models[i].offset += 1.0;
+        }
+    }
 }
 
 JNIEXPORT void JNICALL JNIFUNCTION_DEMO(demoDrawFrame(JNIEnv* env, jobject obj)) {
@@ -148,7 +185,9 @@ JNIEXPORT void JNICALL JNIFUNCTION_DEMO(demoDrawFrame(JNIEnv* env, jobject obj))
 	for (int i = 0; i < NUM_MODELS; i++) {		
 		models[i].visible = arwQueryMarkerTransformation(models[i].patternID, models[i].transformationMatrix);		
 			
-		if (models[i].visible) {					
+		if (models[i].visible) {
+		//Manipulate the x-Axis
+			models[i].transformationMatrix[12] += models[i].offset;
 			glLoadMatrixf(models[i].transformationMatrix);		
 			
 			glLightfv(GL_LIGHT0, GL_AMBIENT, lightAmbient);
@@ -157,7 +196,19 @@ JNIEXPORT void JNICALL JNIFUNCTION_DEMO(demoDrawFrame(JNIEnv* env, jobject obj))
 			
 			glmDrawArrays(models[i].obj, 0);
 		}
-
 	}
-	
+
+	interactionModels[0].visible = arwQueryMarkerVisibility(interactionModels[0].patternID);
+	interactionModels[1].visible = arwQueryMarkerVisibility(interactionModels[1].patternID);
+
+	if(!interactionModels[0].visible) {
+	    LOGE("Move Left id: %d", interactionModels[0].patternID);
+	    moveLeft();
+	}
+
+	if(!interactionModels[1].visible) {
+	    LOGE("Move Right id: %d", interactionModels[1].patternID);
+	    moveRight();
+	}
+
 }
