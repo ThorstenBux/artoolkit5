@@ -61,7 +61,7 @@ extern "C" {
 	JNIEXPORT void JNICALL JNIFUNCTION_DEMO(demoShutdown(JNIEnv* env, jobject object));
 	JNIEXPORT void JNICALL JNIFUNCTION_DEMO(demoSurfaceCreated(JNIEnv* env, jobject object));
 	JNIEXPORT void JNICALL JNIFUNCTION_DEMO(demoSurfaceChanged(JNIEnv* env, jobject object, jint w, jint h));
-	JNIEXPORT void JNICALL JNIFUNCTION_DEMO(demoDrawFrame(JNIEnv* env, jobject obj));	
+	JNIEXPORT void JNICALL JNIFUNCTION_DEMO(demoDrawFrame(JNIEnv* env, jobject obj));
 };
 
 typedef struct ARModel {
@@ -82,7 +82,16 @@ static float lightAmbient[4] = {0.1f, 0.1f, 0.1f, 1.0f};
 static float lightDiffuse[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 static float lightPosition[4] = {0.0f, 0.0f, 1.0f, 0.0f};
 
-JNIEXPORT void JNICALL JNIFUNCTION_DEMO(demoInitialise(JNIEnv* env, jobject object)) {
+static JavaVM *gJavaVM;
+
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
+{
+    gJavaVM = vm;
+    return JNI_VERSION_1_6;
+}
+
+
+JNIEXPORT void JNICALL JNIFUNCTION_DEMO(demoInitialise(JNIEnv* instanceOfAndroidContext, jobject object)) {
 	
 	const char *model0file = "Data/models/Porsche_911_GT3.obj";
 	const char *model1file = "Data/models/Ferrari_Modena_Spider.obj";
@@ -125,6 +134,35 @@ JNIEXPORT void JNICALL JNIFUNCTION_DEMO(demoInitialise(JNIEnv* env, jobject obje
     arwSetMarkerOptionBool(interactionModels[1].patternID, ARW_MARKER_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false);
     arwSetMarkerOptionBool(interactionModels[1].patternID, ARW_MARKER_OPTION_FILTERED, true);
     interactionModels[1].visible = false;
+
+    // Prepare to make JNI calls back to Java.
+
+    // To begin, get a reference to the env and attach to it.
+    JNIEnv *env;
+    int isAttached = 0;
+    jthrowable exception;
+    if (((*gJavaVM).GetEnv((void**)&env, JNI_VERSION_1_6)) < 0) {
+        // Couldn't get JNI environment, so this thread is native.
+        if (((*gJavaVM).AttachCurrentThread(&env, NULL)) < 0) {
+            ARLOGe("Error: Couldn't attach to Java VM.\n");
+        }
+        isAttached = 1;
+    }
+
+    jclass classSound = (*env).FindClass("org/artoolkit/ar/samples/ARSimpleNativeCars/Sound");
+    if (!classSound) return;
+    jmethodID methodIDplaySound = (*env).GetStaticMethodID(classSound, "playSound", "(I)V");
+    if (!methodIDplaySound) return;
+    (*env).CallStaticVoidMethod(classSound, methodIDplaySound, (jint)1);
+    exception = (*env).ExceptionOccurred();
+    if (exception) {
+        (*env).ExceptionDescribe();
+        (*env).ExceptionClear();
+    }
+
+
+    if (isAttached) (*gJavaVM).DetachCurrentThread(); // Clean up.
+
 }
 
 JNIEXPORT void JNICALL JNIFUNCTION_DEMO(demoShutdown(JNIEnv* env, jobject object)) {
