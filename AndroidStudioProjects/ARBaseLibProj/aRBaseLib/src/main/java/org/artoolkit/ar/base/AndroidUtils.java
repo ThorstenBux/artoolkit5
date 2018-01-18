@@ -41,8 +41,13 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
+import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
+
+import org.artoolkit.ar.base.camera.CameraAccessHandler;
+import org.artoolkit.ar.base.camera.CameraEventListener;
 
 import java.io.File;
 import java.text.DecimalFormat;
@@ -57,6 +62,11 @@ public class AndroidUtils {
      * Android logging tag for this class.
      */
     private static final String TAG = "AndroidUtils";
+
+    public static final int VIEW_VISIBILITY = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+            View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN |
+            View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
 
     /**
      * Returns a String summarising the Android build information.
@@ -199,6 +209,14 @@ public class AndroidUtils {
                 + ", Density: " + density);
 
     }
+    @NonNull
+    public static CameraAccessHandler createCameraAccessHandler(Activity activity, CameraEventListener cameraEventListener) {
+        CameraAccessHandler cameraCaptureSurfaceView;
+        // Create the camera preview
+        cameraCaptureSurfaceView = new Cam2CaptureSurface(activity, cameraEventListener);
+        Log.i(TAG, "onResume(): Cam2CaptureSurface constructed");
 
+        return cameraCaptureSurfaceView;
+    }
 
 }

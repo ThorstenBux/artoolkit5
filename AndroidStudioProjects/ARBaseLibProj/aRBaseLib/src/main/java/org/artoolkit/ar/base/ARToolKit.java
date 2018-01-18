@@ -105,6 +105,18 @@ public class ARToolKit {
     }
 
     /**
+     * Returns whether the native library was found and successfully initialised.
+     * Native functions will not be called unless this is true.
+     *
+     * @return true if native functions are available.
+     */
+    @SuppressWarnings("WeakerAccess")
+    public boolean isNativeInited() {
+        initedNative = NativeInterface.arwIsInited();
+        return initedNative;
+    }
+
+    /**
      * Initialises the native code library if it is available.
      *
      * @param resourcesDirectoryPath The full path (in the filesystem) to the directory to be used by the

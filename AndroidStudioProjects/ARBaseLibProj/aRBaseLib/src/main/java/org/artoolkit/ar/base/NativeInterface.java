@@ -94,7 +94,17 @@ public class NativeInterface {
      * @return true on success, false if an error occurred
      */
     public static native boolean arwInitialiseAR();
-    
+
+    /**
+     * Queries whether ARToolKit is initialized. This will be true
+     * after a call to {@link #arwInitialiseAR()} or {@link #arwInitialiseARWithOptions(int, int)}. At
+     * this point {@link #arwStartRunning(String, String, float, float)} and
+     * {@link #arwAndroidVideoPushInit(int, int, int, String, int, int)} can be called.
+     *
+     * @return true ARToolKit has been initialized
+     */
+    public static native boolean arwIsInited();
+
     /**
      * Initialises the the basic ARToolKit functions with non-default options
      * for size and number of square markers. After this function has 
