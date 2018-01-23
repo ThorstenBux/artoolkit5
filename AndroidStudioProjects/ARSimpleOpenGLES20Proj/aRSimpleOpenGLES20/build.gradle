@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion = 24
-    buildToolsVersion = "24.0.3"
+    compileSdkVersion = 27
+    buildToolsVersion = "27.0.3"
 
     defaultConfig {
         applicationId = "org.artoolkit.ar.samples.ARSimpleOpenGLES20"
-        minSdkVersion 15
-        targetSdkVersion 24
+        minSdkVersion 21
+        targetSdkVersion 27
         versionCode = 5000 // Integer type incremented by 1 for every release, major or minor, to Google store
         versionName = "5.0" // Real fully qualified major and minor release description
 

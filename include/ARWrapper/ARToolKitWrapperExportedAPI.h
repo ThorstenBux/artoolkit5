@@ -145,6 +145,13 @@ extern "C" {
     
     EXPORT_API bool arwStartRunningStereoB(const char *vconfL, const char *cparaBuffL, const int cparaBuffLenL, const char *vconfR, const char *cparaBuffR, int cparaBuffLenR, const char *transL2RBuff, const int transL2RBuffLen, const float nearPlane, const float farPlane);
 
+    /**
+     * Returns true is ARToolKit is initialized which should be the case if arwInitialiseAR() or arwInitialiseARWithOptions() has been called.
+     * @return      true when initialized, otherwise false
+     * @see         arwInitialiseARWithOptions(), arwInitialiseAR()
+     */
+    EXPORT_API bool arwIsInited();
+    
 	/**
 	 * Returns true if ARToolKit is running, i.e. detecting markers.
 	 * @return			true when running, otherwise false

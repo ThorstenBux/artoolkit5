@@ -223,6 +223,14 @@ EXPORT_API bool arwStartRunningStereoB(const char *vconfL, const char *cparaBuff
 	return gARTK->startRunningStereo(vconfL, NULL, cparaBuffL, cparaBuffLenL, vconfR, NULL, cparaBuffR, cparaBuffLenR, NULL, transL2RBuff, transL2RBuffLen);
 }
 
+EXPORT_API bool arwIsInited()
+{
+    if (gARTK) {
+        return gARTK->isInited();
+    }
+    return (false);
+}
+
 EXPORT_API bool arwIsRunning()
 {
     if (!gARTK) return false;
@@ -817,6 +825,7 @@ extern "C" {
 	JNIEXPORT jboolean JNICALL JNIFUNCTION(arwStartRunning(JNIEnv *env, jobject obj, jstring vconf, jstring cparaName, float nearPlane, float farPlane));
 	JNIEXPORT jboolean JNICALL JNIFUNCTION(arwStartRunningStereo(JNIEnv *env, jobject obj, jstring vconfL, jstring cparaNameL, jstring vconfR, jstring cparaNameR, jstring transL2RName, float nearPlane, float farPlane));
 	JNIEXPORT jboolean JNICALL JNIFUNCTION(arwIsRunning(JNIEnv *env, jobject obj));
+    JNIEXPORT jboolean JNICALL JNIFUNCTION(arwIsInited(JNIEnv *env, jobject obj));
 	JNIEXPORT jboolean JNICALL JNIFUNCTION(arwStopRunning(JNIEnv *env, jobject obj));
 	JNIEXPORT jfloatArray JNICALL JNIFUNCTION(arwGetProjectionMatrix(JNIEnv *env, jobject obj));
 	JNIEXPORT jboolean JNICALL JNIFUNCTION(arwGetProjectionMatrixStereo(JNIEnv *env, jobject obj, jfloatArray projL, jfloatArray projR));
@@ -953,6 +962,11 @@ JNIEXPORT jboolean JNICALL JNIFUNCTION(arwStartRunningStereo(JNIEnv *env, jobjec
 	env->ReleaseStringUTFChars(transL2RName, transL2RNameC);
     
 	return running;
+}
+
+JNIEXPORT jboolean JNICALL JNIFUNCTION(arwIsInited(JNIEnv *env, jobject obj))
+{
+    return arwIsInited();
 }
 
 JNIEXPORT jboolean JNICALL JNIFUNCTION(arwIsRunning(JNIEnv *env, jobject obj)) 

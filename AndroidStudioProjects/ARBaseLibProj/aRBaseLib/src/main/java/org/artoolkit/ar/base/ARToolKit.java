@@ -72,11 +72,6 @@ public class ARToolKit {
         else Log.i(TAG, "Loaded native library.");
     }
 
-    private int frameWidth;
-    private int frameHeight;
-    private int cameraIndex;
-    private boolean cameraIsFrontFacing;
-
     /**
      * Array of RGB color values containing the debug video image data.
      */
@@ -125,6 +120,7 @@ public class ARToolKit {
      *                               or Activity.getContext().getFilesDir().getAbsolutePath()
      * @return true if the library was found and successfully initialised.
      */
+    @SuppressWarnings("unused")
     public boolean initialiseNative(String resourcesDirectoryPath) {
         if (!loadedNative) return false;
         if (!NativeInterface.arwInitialiseAR()) {
@@ -147,7 +143,8 @@ public class ARToolKit {
 	 *            e.g. Activity.getContext().getCacheDir().getAbsolutePath()
 	 *            or Activity.getContext().getFilesDir().getAbsolutePath()
 	 */
-	public boolean initialiseNativeWithOptions(String resourcesDirectoryPath, int pattSize, int pattCountMax) {
+    @SuppressWarnings("WeakerAccess")
+    public boolean initialiseNativeWithOptions(String resourcesDirectoryPath, int pattSize, int pattCountMax) {
 		if (!loadedNative) return false;
 		if (!NativeInterface.arwInitialiseARWithOptions(pattSize, pattCountMax)) {
 			Log.e(TAG, "Error initialising native library!");
@@ -187,11 +184,6 @@ public class ARToolKit {
      */
     public boolean startWithPushedVideo(int videoWidth, int videoHeight, String pixelFormat, String cameraParaPath, int cameraIndex, boolean cameraIsFrontFacing) {
 
-        this.frameWidth = videoWidth;
-        this.frameHeight = videoHeight;
-        this.cameraIndex = cameraIndex;
-        this.cameraIsFrontFacing = cameraIsFrontFacing;
-
         if (!initedNative) {
             Log.e(TAG, "startWithPushedVideo(): Cannot start because native interface not inited.");
             return false;
@@ -208,9 +200,9 @@ public class ARToolKit {
             return false;
         }
 
-        debugImageData = new byte[frameWidth * frameHeight * 4];
-        debugImageColors = new int[frameWidth * frameHeight];
-        debugBitmap = Bitmap.createBitmap(frameWidth, frameHeight, Bitmap.Config.ARGB_8888);
+        debugImageData = new byte[videoWidth * videoHeight * 4];
+        debugImageColors = new int[videoWidth * videoHeight];
+        debugBitmap = Bitmap.createBitmap(videoWidth, videoHeight, Bitmap.Config.ARGB_8888);
 
         return true;
     }
@@ -222,6 +214,7 @@ public class ARToolKit {
      *
      * @return The debug image Bitmap.
      */
+    @SuppressWarnings("unused")
     public Bitmap updateDebugBitmap() {
 
         if (!initedNative) return null;
@@ -254,6 +247,7 @@ public class ARToolKit {
      *
      * @return The debug video Bitmap.
      */
+    @SuppressWarnings("unused")
     public Bitmap getDebugBitmap() {
         return debugBitmap;
     }
@@ -263,9 +257,9 @@ public class ARToolKit {
      *
      * @return Whether the ARToolKit debug video image is enabled.
      */
+    @SuppressWarnings("unused")
     public boolean getDebugMode() {
-        if (!initedNative) return false;
-        return NativeInterface.arwGetVideoDebugMode();
+        return initedNative && NativeInterface.arwGetVideoDebugMode();
     }
 
     /**
@@ -273,6 +267,7 @@ public class ARToolKit {
      *
      * @param debug Whether or not to enable the debug video image.
      */
+    @SuppressWarnings("unused")
     public void setDebugMode(boolean debug) {
         if (!initedNative) return;
         NativeInterface.arwSetVideoDebugMode(debug);
@@ -285,6 +280,7 @@ public class ARToolKit {
      * @return The current threshold value in the range 0 to 255, or -1 if the
      * threshold could not be retrieved.
      */
+    @SuppressWarnings("unused")
     public int getThreshold() {
         if (!initedNative) return -1;
         return NativeInterface.arwGetVideoThreshold();
@@ -295,6 +291,7 @@ public class ARToolKit {
      *
      * @param threshold The new threshold value in the range 0 to 255.
      */
+    @SuppressWarnings("unused")
     public void setThreshold(int threshold) {
         if (!initedNative) return;
         NativeInterface.arwSetVideoThreshold(threshold);
@@ -334,8 +331,7 @@ public class ARToolKit {
      * @return true if the marker is visible and tracked in the current video frame.
      */
     public boolean queryMarkerVisible(int markerUID) {
-        if (!initedNative) return false;
-        return NativeInterface.arwQueryMarkerVisibility(markerUID);
+        return initedNative && NativeInterface.arwQueryMarkerVisibility(markerUID);
     }
 
     /**
@@ -355,8 +351,7 @@ public class ARToolKit {
      * @return true when video and marker detection are running, otherwise false
      */
     public boolean isRunning() {
-        if (!initedNative) return false;
-        return NativeInterface.arwIsRunning();
+        return initedNative && NativeInterface.arwIsRunning();
     }
 
     /**
@@ -454,11 +449,11 @@ public class ARToolKit {
 
         initedNative = false;
     }
-
+    @SuppressWarnings("unused")
     public float getBorderSize() {
         return NativeInterface.arwGetBorderSize();
     }
-
+    @SuppressWarnings("unused")
     public void setBorderSize(float size) {
         NativeInterface.arwSetBorderSize(size);
     }
@@ -470,7 +465,7 @@ public class ARToolKit {
      * @param idMarker2    Marker that will be depending on that base
      * @return Matrix that contains the transformation from @idMarkerBase to @idMarker2
      */
-    public float[] calculateReferenceMatrix(int idMarkerBase, int idMarker2) {
+    private float[] calculateReferenceMatrix(int idMarkerBase, int idMarker2) {
         float[] referenceMarkerTranslationMatrix = this.queryMarkerTransformation(idMarkerBase);
         float[] secondMarkerTranslationMatrix = this.queryMarkerTransformation(idMarker2);
 
@@ -499,6 +494,7 @@ public class ARToolKit {
      * @param markerId2       Marker to which the distance is calculated
      * @return distance
      */
+    @SuppressWarnings("unused")
     public float distance(int referenceMarker, int markerId2) {
 
         float[] referenceMatrix = calculateReferenceMatrix(referenceMarker, markerId2);
@@ -524,6 +520,7 @@ public class ARToolKit {
      * @param markerIdToGetThePositionFor Id of the marker for which the position is calculated
      * @return Position vector with length 4 x,y,z,1
      */
+    @SuppressWarnings("unused")
     public float[] retrievePosition(int referenceMarkerId, int markerIdToGetThePositionFor) {
         float[] initialVector = {1f, 1f, 1f, 1f};
         float[] positionVector = new float[4];

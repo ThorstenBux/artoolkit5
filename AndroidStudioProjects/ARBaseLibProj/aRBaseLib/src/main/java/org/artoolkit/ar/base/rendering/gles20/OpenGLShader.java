@@ -53,8 +53,8 @@ public interface OpenGLShader {
     //AR application to the shader.
     String positionVectorString = "a_Position";
 
-    public int configureShader();
+    int configureShader();
 
-    public void setShaderSource(String source);
+    void setShaderSource(String source);
 
 }

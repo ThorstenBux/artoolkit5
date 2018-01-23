@@ -47,6 +47,7 @@ import android.util.Log;
 import android.view.View;
 
 import org.artoolkit.ar.base.camera.CameraAccessHandler;
+import org.artoolkit.ar.base.camera.CameraAccessHandlerImpl;
 import org.artoolkit.ar.base.camera.CameraEventListener;
 
 import java.io.File;
@@ -75,30 +76,28 @@ public class AndroidUtils {
      */
     public static String androidBuildVersion() {
 
-        StringBuffer buf = new StringBuffer();
-        buf.append("Version\n *Release: " + Build.VERSION.RELEASE);    // The user-visible version string. E.g., "1.0" or "3.4b5".
-        buf.append("\n Incremental: " + Build.VERSION.INCREMENTAL);    // The internal value used by the underlying source control to represent this build.
-        buf.append("\n Codename: " + Build.VERSION.CODENAME);        // The current development codename, or the string "REL" if this is a release build.
-        buf.append("\n SDK: " + Build.VERSION.SDK_INT);                // The user-visible SDK version of the framework.
-        buf.append("\n\n*Model: " + Build.MODEL);                    // The end-user-visible name for the end product..
-        buf.append("\nManufacturer: " + Build.MANUFACTURER);        // The manufacturer of the product/hardware.
-        buf.append("\nBoard: " + Build.BOARD);                        // The name of the underlying board, like "goldfish".
-        buf.append("\nBrand: " + Build.BRAND);                        // The brand (e.g., carrier) the software is customized for, if any.
-        buf.append("\nDevice: " + Build.DEVICE);                    // The name of the industrial design.
-        buf.append("\nProduct: " + Build.PRODUCT);                    // The name of the overall product.
-        buf.append("\nHardware: " + Build.HARDWARE);                // The name of the hardware (from the kernel command line or /proc).
-        buf.append("\nCPU ABI: " + Build.CPU_ABI);                    // The name of the instruction set (CPU type + ABI convention) of native code.
-        buf.append("\nCPU second ABI: " + Build.CPU_ABI2);            // The name of the second instruction set (CPU type + ABI convention) of native code.
-        buf.append("\n\n*Displayed ID: " + Build.DISPLAY);            // A build ID string meant for displaying to the user.
-        buf.append("\nHost: " + Build.HOST);
-        buf.append("\nUser: " + Build.USER);
-        buf.append("\nID: " + Build.ID);                            // Either a changelist number, or a label like "M4-rc20".
-        buf.append("\nType: " + Build.TYPE);                        // The type of build, like "user" or "eng".
-        buf.append("\nTags: " + Build.TAGS);                        // Comma-separated tags describing the build, like "unsigned,debug".
-        buf.append("\n\nFingerprint: " + Build.FINGERPRINT);        // A string that uniquely identifies this build. 'BRAND/PRODUCT/DEVICE:RELEASE/ID/VERSION.INCREMENTAL:TYPE/TAGS'.
-        buf.append("\n\nItems with * are intended for display to the end user.");
+        String buf = "Version\n *Release: " + Build.VERSION.RELEASE +    // The user-visible version string. E.g., "1.0" or "3.4b5".
+                "\n Incremental: " + Build.VERSION.INCREMENTAL +    // The internal value used by the underlying source control to represent this build.
+                "\n Codename: " + Build.VERSION.CODENAME +        // The current development codename, or the string "REL" if this is a release build.
+                "\n SDK: " + Build.VERSION.SDK_INT +                // The user-visible SDK version of the framework.
+                "\n\n*Model: " + Build.MODEL +                    // The end-user-visible name for the end product..
+                "\nManufacturer: " + Build.MANUFACTURER +        // The manufacturer of the product/hardware.
+                "\nBoard: " + Build.BOARD +                        // The name of the underlying board, like "goldfish".
+                "\nBrand: " + Build.BRAND +                        // The brand (e.g., carrier) the software is customized for, if any.
+                "\nDevice: " + Build.DEVICE +                    // The name of the industrial design.
+                "\nProduct: " + Build.PRODUCT +                    // The name of the overall product.
+                "\nHardware: " + Build.HARDWARE +                // The name of the hardware (from the kernel command line or /proc).
+                "\nSupported ABI: " + Build.SUPPORTED_ABIS +                    // The name of the instruction set (CPU type + ABI convention) of native code.
+                "\n\n*Displayed ID: " + Build.DISPLAY +            // A build ID string meant for displaying to the user.
+                "\nHost: " + Build.HOST +
+                "\nUser: " + Build.USER +
+                "\nID: " + Build.ID +                            // Either a changelist number, or a label like "M4-rc20".
+                "\nType: " + Build.TYPE +                        // The type of build, like "user" or "eng".
+                "\nTags: " + Build.TAGS +                        // Comma-separated tags describing the build, like "unsigned,debug".
+                "\n\nFingerprint: " + Build.FINGERPRINT +        // A string that uniquely identifies this build. 'BRAND/PRODUCT/DEVICE:RELEASE/ID/VERSION.INCREMENTAL:TYPE/TAGS'.
+                "\n\nItems with * are intended for display to the end user.";
 
-        return buf.toString();
+        return buf;
     }
 
     /**
@@ -120,8 +119,8 @@ public class AndroidUtils {
         if (isSDCardMounted()) {
             File path = Environment.getExternalStorageDirectory();
             StatFs stat = new StatFs(path.getPath());
-            long blockSize = stat.getBlockSize();
-            long availableBlocks = stat.getAvailableBlocks();
+            long blockSize = stat.getBlockSizeLong();
+            long availableBlocks = stat.getAvailableBlocksLong();
             return availableBlocks * blockSize;
         } else {
             return -1;
@@ -137,8 +136,8 @@ public class AndroidUtils {
         if (isSDCardMounted()) {
             File path = Environment.getExternalStorageDirectory();
             StatFs stat = new StatFs(path.getPath());
-            long blockSize = stat.getBlockSize();
-            long totalBlocks = stat.getBlockCount();
+            long blockSize = stat.getBlockSizeLong();
+            long totalBlocks = stat.getBlockCountLong();
             return totalBlocks * blockSize;
         } else {
             return -1;
@@ -211,12 +210,13 @@ public class AndroidUtils {
     }
     @NonNull
     public static CameraAccessHandler createCameraAccessHandler(Activity activity, CameraEventListener cameraEventListener) {
-        CameraAccessHandler cameraCaptureSurfaceView;
+        CameraAccessHandler cameraAccessHandler;
         // Create the camera preview
-        cameraCaptureSurfaceView = new Cam2CaptureSurface(activity, cameraEventListener);
+        cameraAccessHandler = new CameraAccessHandlerImpl(activity, cameraEventListener) {
+        };
         Log.i(TAG, "onResume(): Cam2CaptureSurface constructed");
 
-        return cameraCaptureSurfaceView;
+        return cameraAccessHandler;
     }
 
 }

@@ -1,13 +1,7 @@
-package org.artoolkit.ar.base;
-
-import android.app.Activity;
-import android.opengl.GLSurfaceView;
-import android.util.Log;
-
-import org.artoolkit.ar.base.rendering.ARRenderer;
+package org.artoolkit.ar.base.camera;
 
 /*
- *  FrameListenerImpl.java
+ *  FrameListener.java
  *  artoolkitX
  *
  *  This file is part of artoolkitX.
@@ -43,39 +37,9 @@ import org.artoolkit.ar.base.rendering.ARRenderer;
  *  Author(s): Thorsten Bux
  *
  */
-public final class FrameListenerImpl implements FrameListener {
 
-    private static String TAG = FrameListenerImpl.class.getSimpleName();
-    private ARRenderer renderer;
-    private Activity activity;
-    private GLSurfaceView glSurfaceView;
+public interface FrameListener {
+    void firstFrame();
 
-    public FrameListenerImpl(ARRenderer renderer, Activity activity, GLSurfaceView glSurfaceView){
-        this.renderer = renderer;
-        this.activity = activity;
-        this.glSurfaceView = glSurfaceView;
-    }
-
-    @Override
-    public void firstFrame() {
-        // ARToolKit has been initialised. The renderer can now add markers, etc...
-        //TODO: Isn't there another place to see if it is initialized so that we can do the configure scene there?
-        if(renderer != null) {
-            if (renderer.configureARScene()) {
-                Log.i(TAG, "firstFrame(): Scene configured successfully");
-            } else {
-                // Error
-                Log.e(TAG, "firstFrame(): Error configuring scene. Cannot continue.");
-                activity.finish();
-            }
-        }
-    }
-
-    @Override
-    public void onFrameProcessed() {
-        // Update the renderer as the frame has changed
-        if (glSurfaceView != null) {
-            glSurfaceView.requestRender();
-        }
-    }
+    void onFrameProcessed();
 }

@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         minSdkVersion 21 // Signals the Google Play Store as to what device, running this minimum indicated or greater version, an app can be installed on
-        targetSdkVersion 24 // Indicates the version of the latest API feature set that can be used and that you have tested your app on (presumably up to and including)
+        targetSdkVersion 27 // Indicates the version of the latest API feature set that can be used and that you have tested your app on (presumably up to and including)
         versionCode = 2     // Integer type incremented by 1 for every release, major or minor, to the Google store
         versionName = "2.0" // The real fully qualified major and minor release description
 
@@ -22,5 +22,5 @@ android {
 dependencies {
     // compile 'com.android.support:support-v4:24.2.1'// Only required when the target device API level is greater than
     // the compile and target of the app being deployed to the device
-    compile 'com.android.support:appcompat-v7:26.0.0-alpha1'
+    implementation 'com.android.support:appcompat-v7:27.0.2'
 }

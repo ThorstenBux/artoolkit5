@@ -65,8 +65,10 @@ import android.widget.Toast;
 
 import org.artoolkit.ar.base.camera.CameraAccessHandler;
 import org.artoolkit.ar.base.camera.CameraEventListener;
+import org.artoolkit.ar.base.camera.CameraEventListenerImpl;
 import org.artoolkit.ar.base.camera.CameraPreferencesActivity;
-import org.artoolkit.ar.base.camera.CaptureCameraPreview;
+import org.artoolkit.ar.base.camera.FrameListener;
+import org.artoolkit.ar.base.camera.FrameListenerImpl;
 import org.artoolkit.ar.base.rendering.ARRenderer;
 
 /**
@@ -91,22 +93,17 @@ public abstract class ARActivity extends /*AppCompat*/Activity implements View.O
     /**
      * Android logging tag for this class.
      */
-    protected final static String TAG = "ARBaseLib::ARActivity";
+    private final static String TAG = "ARBaseLib::ARActivity";
 
     /**
      * Renderer to use. This is provided by the subclass using {@link #supplyRenderer() Renderer()}.
      */
-    protected ARRenderer renderer;
+    private ARRenderer renderer;
 
     /**
      * Layout that will be filled with the camera preview and GL views. This is provided by the subclass using {@link #supplyFrameLayout() supplyFrameLayout()}.
      */
     protected FrameLayout mainLayout;
-
-    /**
-     * Camera preview which will provide video frames.
-     */
-    private CaptureCameraPreview preview = null;
 
     /**
      * GL surface to render the virtual objects
@@ -125,10 +122,9 @@ public abstract class ARActivity extends /*AppCompat*/Activity implements View.O
      */
     protected int mPattCountMax = 25;
 
-    private boolean firstUpdate = false;
-
     private Context mContext;
     private CameraAccessHandler mCameraAccessHandler;
+    private ImageButton mConfigButton;
 
     @SuppressWarnings("unused")
     public Context getAppContext() {
@@ -154,8 +150,6 @@ public abstract class ARActivity extends /*AppCompat*/Activity implements View.O
         AndroidUtils.reportDisplayInformation(this);
     }
 
-    private Activity mActivity = null;
-
     /**
      * Allows subclasses to supply a custom {@link Renderer}.
      *
@@ -176,7 +170,6 @@ public abstract class ARActivity extends /*AppCompat*/Activity implements View.O
         super.onStart();
 
         Log.i(TAG, "onStart(): called");
-        mActivity = this;
         // Use cache directory as root for native path references.
         // The AssetFileTransfer class can help with unpacking from the built .apk to the cache.
         if (!ARToolKit.getInstance().initialiseNativeWithOptions(this.getCacheDir().getAbsolutePath(), mPattSize, mPattCountMax)) {
@@ -220,15 +213,11 @@ public abstract class ARActivity extends /*AppCompat*/Activity implements View.O
         final ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
         final boolean supportsEs2 = configurationInfo.reqGlEsVersion >= 0x20000;
 
-        if (supportsEs2) {
-            Log.i(TAG, "onResume(): OpenGL ES 2.x is supported");
-             // Request an OpenGL ES 2.0 compatible context.
-            mGlView.setEGLContextClientVersion(2);
+        Log.i(TAG, "onResume(): OpenGL ES 2.x is supported");
+         // Request an OpenGL ES 2.0 compatible context.
+        mGlView.setEGLContextClientVersion(2);
 
-        } else {
-            Log.i(TAG, "onResume(): Only OpenGL ES 1.x is supported");
-            throw new RuntimeException("Only OpenGL 1.x available, we need at least OpenGL 2.0.");
-        }
+        mGlView.getHolder().setFormat(PixelFormat.TRANSLUCENT); // Needs to be a translucent surface so the camera preview shows through.
 
         if (renderer != null) { //In case of using this method from UNITY we do not provide a renderer
             mGlView.setRenderer(renderer);
@@ -239,20 +228,20 @@ public abstract class ARActivity extends /*AppCompat*/Activity implements View.O
         Log.i(TAG, "onResume(): GLSurfaceView created");
 
         // Add the OpenGL view which will be used to render the video background and the virtual environment.
-        mainFrameLayout.addView(mGlView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        mainLayout.addView(mGlView, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         Log.i(TAG, "onResume(): Views added to main layout.");
         mGlView.onResume();
 
-        if (mCameraAccessHandler.gettingCameraAccessPermissionsFromUser()) {
+        if (mCameraAccessHandler.getCameraAccessPermissions()) {
             //No need to go further, must ask user to allow access to the camera first.
             return;
         }
 
-        //Load settings button
-        View settingsButtonLayout = this.getLayoutInflater().inflate(R.layout.settings_button_layout, mainFrameLayout, false);
-        mSettingButton = (ImageButton) settingsButtonLayout.findViewById(R.id.button_settings);
-        mainFrameLayout.addView(settingsButtonLayout);
-        mSettingButton.setOnClickListener(this);
+        //Load config button
+        View settingsButtonLayout = this.getLayoutInflater().inflate(R.layout.config, mainLayout, false);
+        mConfigButton = settingsButtonLayout.findViewById(R.id.button_config);
+        mainLayout.addView(settingsButtonLayout);
+        mConfigButton.setOnClickListener(this);
     }
 
     @Override
@@ -264,11 +253,11 @@ public abstract class ARActivity extends /*AppCompat*/Activity implements View.O
         // camera. Also do it for the GLSurfaceView, since it serves no purpose
         // with the camera preview gone.
         if (ARToolKit.getInstance().isNativeInited()) {
-            mCamCaptureSurfaceView.closeCameraDevice();
+            mCameraAccessHandler.closeCamera();
 
             if (mGlView != null) {
                 mGlView.onPause();
-                mainFrameLayout.removeView(mGlView);
+                mainLayout.removeView(mGlView);
             }
         }
         super.onPause();
@@ -336,10 +325,9 @@ public abstract class ARActivity extends /*AppCompat*/Activity implements View.O
 
     @Override
     public void onClick(View v) {
-        if (v.equals(mSettingButton)) {
+        if (v.equals(mConfigButton)) {
             v.getContext().startActivity(new Intent(v.getContext(), CameraPreferencesActivity.class));
         }
-
     }
 
     @Override
@@ -357,7 +345,7 @@ public abstract class ARActivity extends /*AppCompat*/Activity implements View.O
                         Toast.LENGTH_SHORT).show();
             }
             Log.i(TAG, "onRequestPermissionsResult(): reset ask for cam access perm");
-            mCamCaptureSurfaceView.resetGettingCameraAccessPermissionsFromUserState();
+            mCameraAccessHandler.resetCameraAccessPermissionsFromUser();
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }

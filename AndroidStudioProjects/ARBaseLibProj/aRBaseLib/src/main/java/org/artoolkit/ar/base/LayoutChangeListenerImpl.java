@@ -1,7 +1,14 @@
 package org.artoolkit.ar.base;
 
+import android.app.Activity;
+import android.util.Log;
+import android.view.View;
+
+import org.artoolkit.ar.base.camera.CameraAccessHandler;
+import org.artoolkit.ar.base.camera.CameraSurface;
+
 /*
- *  FrameListener.java
+ *  LayoutChangeListenerImpl.java
  *  artoolkitX
  *
  *  This file is part of artoolkitX.
@@ -37,9 +44,31 @@ package org.artoolkit.ar.base;
  *  Author(s): Thorsten Bux
  *
  */
+public class LayoutChangeListenerImpl implements View.OnLayoutChangeListener {
+    private final static String TAG = LayoutChangeListenerImpl.class.getSimpleName();
+    private final Activity activity;
+    private final CameraAccessHandler cameraAccessHandler;
 
-public interface FrameListener {
-    void firstFrame();
+    public LayoutChangeListenerImpl(Activity activity, CameraAccessHandler cameraAccessHandler) {
+        this.activity = activity;
+        this.cameraAccessHandler = cameraAccessHandler;
+    }
 
-    void onFrameProcessed();
+    @Override
+    public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+        View decorView = activity.getWindow().getDecorView();
+        CameraSurface cameraSurface = cameraAccessHandler.getCameraSurfaceView();
+        if (AndroidUtils.VIEW_VISIBILITY == decorView.getSystemUiVisibility()) {
+            if (!cameraAccessHandler.getCameraAccessPermissions()) {
+
+                if (!cameraSurface.isImageReaderCreated()) {
+                    cameraSurface.surfaceCreated();
+                }
+                if (!cameraSurface.isCamera2DeviceOpen())
+                    cameraSurface.surfaceChanged();
+            }
+        } else{
+            Log.v(TAG,"Not in fullscreen.");
+        }
+    }
 }

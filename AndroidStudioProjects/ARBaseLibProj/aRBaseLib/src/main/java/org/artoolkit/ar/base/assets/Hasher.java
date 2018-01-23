@@ -57,7 +57,7 @@ public class Hasher {
 
         if (buf == null) return "";
 
-        StringBuffer result = new StringBuffer(2 * buf.length);
+        StringBuilder result = new StringBuilder(2 * buf.length);
 
         for (int i = 0; i < buf.length; i++) {
             result.append(HEX.charAt((buf[i] >> 4) & 0x0f)).append(HEX.charAt(buf[i] & 0x0f));
@@ -89,14 +89,12 @@ public class Hasher {
             throw new HashComputationException("IOException while reading from file", ioe);
         }
 
-        long value = crc.getValue();
-
         //long elapsedTime = System.nanoTime() - crcStartTime;
         //Log.i(TAG, "CRC time: " + (elapsedTime / 1000000.0f) + " ms");
 
         //Log.i(TAG, "CRC result of " + filename + ": " + value);
 
-        return value;
+        return crc.getValue();
 
     }
 
@@ -144,10 +142,9 @@ public class Hasher {
         //long elapsedTime = System.nanoTime() - hashStartTime;
         //Log.i(TAG, "Hash time: " + (elapsedTime / 1000000.0f) + " ms");
 
-        String hash = toHex(digestResult);
         //Log.i(TAG, "Hash result of " + filename + ": " + hash);
 
-        return hash;
+        return toHex(digestResult);
 
     }
 

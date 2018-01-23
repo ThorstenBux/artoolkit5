@@ -363,6 +363,8 @@ public:
 	 */
 	ARMarker* findMarker(int UID);
 	
+    bool isInited();
+    
     bool capture();
     
     /**

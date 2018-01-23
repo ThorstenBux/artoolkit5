@@ -5,7 +5,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 import org.artoolkit.ar.base.ARToolKit;
-import org.artoolkit.ar.base.FrameListener;
 
 import java.nio.ByteBuffer;
 
@@ -70,7 +69,7 @@ public class CameraEventListenerImpl implements CameraEventListener {
             arActivity.finish();
         }
 
-        Toast.makeText(arActivity, "Camera settings: " + width + "x" + height, Toast.LENGTH_SHORT).show();
+        Toast.makeText(arActivity, "Camera config: " + width + "x" + height, Toast.LENGTH_SHORT).show();
         firstUpdate = true;
     }
 

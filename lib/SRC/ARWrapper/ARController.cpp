@@ -1333,6 +1333,10 @@ ARMarker* ARController::findMarker(int UID)
 	return NULL;
 }
 
+bool ARController::isInited(){
+    return state != ARToolKitState::NOTHING_INITIALISED;
+}
+
 // ----------------------------------------------------------------------------------------------------
 #pragma mark  Utility
 // ----------------------------------------------------------------------------------------------------

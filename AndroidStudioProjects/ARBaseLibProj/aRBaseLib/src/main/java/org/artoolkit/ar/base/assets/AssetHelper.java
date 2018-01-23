@@ -74,7 +74,7 @@ public class AssetHelper {
     public List<AssetFileTransfer> copyAssetFolder(String assetBasePath, String targetDirPath) {
 
         Set<String> filenames = getAssetFilenames(assetBasePath);
-        List<AssetFileTransfer> transfers = new ArrayList<AssetFileTransfer>();
+        List<AssetFileTransfer> transfers = new ArrayList<>();
 
         for (String f : filenames) {
             AssetFileTransfer aft = new AssetFileTransfer();
@@ -187,7 +187,7 @@ public class AssetHelper {
     }
 
     public Set<String> getAssetFilenames(String path) {
-        Set<String> files = new HashSet<String>();
+        Set<String> files = new HashSet<>();
         getAssetFilenames(path, files);
         return files;
     }
